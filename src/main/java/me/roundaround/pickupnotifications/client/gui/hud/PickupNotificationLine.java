@@ -1,4 +1,5 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
