@@ -10,8 +10,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.util.math.MathHelper;
 
 public class PickupNotificationLine extends DrawableHelper {
-    public static final float SHOW_DURATION = 100000f;
-//    public static final float SHOW_DURATION = 120f;
+    public static final float SHOW_DURATION = 120f;
     public static final float DURATION_INCREASE_ON_ADD = 60f;
     public static final float POP_DURATION = 5f;
     public static final float ANIM_DURATION = 6f;
