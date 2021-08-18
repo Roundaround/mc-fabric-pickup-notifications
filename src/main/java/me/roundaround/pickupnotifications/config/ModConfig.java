@@ -2,48 +2,59 @@ package me.roundaround.pickupnotifications.config;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
+import me.roundaround.pickupnotifications.config.option.ConfigOption;
 import me.roundaround.pickupnotifications.util.JsonUtil;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ModConfig {
     private final String modId;
     private final String version;
-
-    private HashMap<String, ConfigOption<String>> configOptions = new HashMap<>();
+    private final HashMap<String, ConfigOption<?>> configOptions = new HashMap<>();
 
     public ModConfig(String modId, String version) {
         this.modId = modId;
         this.version = version;
     }
 
-    public void loadFromFile() {
-        File file = new File(this.getConfigDirectory(), this.getConfigFileName());
+    public void registerConfigOption(ConfigOption<?> configOption) {
+        this.configOptions.put(configOption.getId(), configOption);
+    }
 
-        JsonElement element = JsonUtil.parseJsonFile(file);
+    public void registerConfigOptions(ConfigOption<?>... configOptions) {
+        this.configOptions.putAll(Arrays.stream(configOptions)
+                .collect(Collectors.toMap(ConfigOption::getId, Function.identity())));
+    }
+
+    public void loadFromFile() {
+        JsonElement element = JsonUtil.parseJsonFile(this.getConfigFile());
 
         if (element != null && element.isJsonObject()) {
             JsonObject root = element.getAsJsonObject();
-            String configVersion = JsonUtil.getStringOrDefault(root, "config_version", "0.0.1");
 
+            String configVersion = JsonUtil.getStringOrDefault(root, "config_version", "0.0.1");
             // TODO: Upgrade versions as necessary.
 
-            for (ConfigOption<String> configOption : configOptions.values()) {
-                configOption.setValue(JsonUtil.getStringOrDefault(root, configOption.id, null));
-            }
+            this.configOptions.values().forEach(configOption -> configOption.readFromJsonRoot(root));
         } else {
-
-            for (ConfigOption<?> configOption : configOptions.values()) {
-                configOption.resetToDefault();
-            }
+            this.configOptions.values().forEach(ConfigOption::resetToDefault);
         }
     }
 
     public boolean saveToFile() {
-        return false;
+        JsonObject root = new JsonObject();
+        root.add("config_version", new JsonPrimitive(this.version));
+
+        this.configOptions.values().forEach((configOption -> configOption.writeToJsonRoot(root)));
+
+        return JsonUtil.writeJsonToFile(root, this.getConfigFile());
     }
 
     public String getConfigVersion() {
@@ -62,5 +73,9 @@ public class ModConfig {
 
     public String getConfigFileName() {
         return modId + ".json";
+    }
+
+    public File getConfigFile() {
+        return new File(this.getConfigDirectory(), this.getConfigFileName());
     }
 }
