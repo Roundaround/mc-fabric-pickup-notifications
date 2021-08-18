@@ -36,13 +36,11 @@ public abstract class ConfigOption<T> {
     }
 
     public boolean isDirty() {
-        return (this.value == null && this.lastSavedValue == null) ||
-                (this.value != null && !this.value.equals(this.lastSavedValue));
+        return !this.value.equals(this.lastSavedValue);
     }
 
     public boolean isModified() {
-        return (this.value == null && this.defaultValue == null) ||
-                (this.value != null && !this.value.equals(this.defaultValue));
+        return !this.value.equals(this.defaultValue);
     }
 
     public void readFromJsonRoot(JsonObject root) {
