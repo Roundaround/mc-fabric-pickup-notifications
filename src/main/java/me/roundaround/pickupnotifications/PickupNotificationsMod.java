@@ -10,6 +10,7 @@ public final class PickupNotificationsMod implements ClientModInitializer {
     public static final String MOD_ID = "me.roundaround.pickupnotifications";
     public static final String VERSION = "1.0.0";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static final PickupNotificationsConfig CONFIG = new PickupNotificationsConfig();
 
     private final PickupNotificationsHud pickupNotificationsHud = new PickupNotificationsHud();
 
@@ -17,6 +18,6 @@ public final class PickupNotificationsMod implements ClientModInitializer {
     public void onInitializeClient() {
         pickupNotificationsHud.init();
 
-        new PickupNotificationsConfig().saveToFile();
+        CONFIG.saveToFile();
     }
 }
