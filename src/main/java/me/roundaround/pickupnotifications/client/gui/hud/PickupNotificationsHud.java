@@ -1,6 +1,7 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
 import com.google.common.collect.Queues;
+import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -44,8 +45,10 @@ public class PickupNotificationsHud extends DrawableHelper {
         }
 
         int i = 0;
+        int x = PickupNotificationsConfig.GUI_OFFSET_X.getValue();
+        int y = PickupNotificationsConfig.GUI_OFFSET_Y.getValue();
         for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
-            notification.render(matrixStack, 4, 4, i++);
+            notification.render(matrixStack, x, y, i++);
         }
     }
 
