@@ -45,10 +45,8 @@ public class PickupNotificationsHud extends DrawableHelper {
         }
 
         int i = 0;
-        int x = PickupNotificationsConfig.GUI_OFFSET_X.getValue();
-        int y = PickupNotificationsConfig.GUI_OFFSET_Y.getValue();
         for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
-            notification.render(matrixStack, x, y, i++);
+            notification.render(matrixStack, i++);
         }
     }
 

@@ -11,7 +11,7 @@ import me.roundaround.roundalib.config.value.GuiAlignment;
 import java.util.Collection;
 
 public class PickupNotificationsConfig extends ModConfig {
-    public static final OptionListConfigOption GUI_ALIGNMENT = new OptionListConfigOption("guiAlignment", GuiAlignment.TOP_LEFT);
+    public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT = new OptionListConfigOption<>("guiAlignment", GuiAlignment.TOP_LEFT);
     public static final IntConfigOption GUI_OFFSET_X = new IntConfigOption("guiOffsetX", 4);
     public static final IntConfigOption GUI_OFFSET_Y = new IntConfigOption("guiOffsetY", 4);
 
