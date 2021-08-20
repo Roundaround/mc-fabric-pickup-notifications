@@ -1,0 +1,7 @@
+{
+  "modname": "Roundaround's Pickup Notifications",
+  "config.title": "Roundaround's Pickup Notifications Config",
+  "config.label.gui_alignment": "HUD alignment",
+  "config.label.gui_offset_x": "HUD horizontal offset",
+  "config.label.gui_offset_y": "HUD vertical offset"
+}

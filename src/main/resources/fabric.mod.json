@@ -17,6 +17,9 @@
   "entrypoints": {
     "client": [
       "me.roundaround.pickupnotifications.PickupNotificationsMod"
+    ],
+    "modmenu": [
+      "me.roundaround.pickupnotifications.compat.modmenu.ModMenuImpl"
     ]
   },
   "mixins": [
