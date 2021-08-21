@@ -26,7 +26,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// RoundaLib
-	modImplementation "me.roundaround:roundalib:1.0.0"
+	modImplementation "me.roundaround:roundalib:${project.roundalib_version}"
 
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
@@ -80,9 +80,16 @@ publishing {
 
 	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		maven {
+			allowInsecureProtocol = true
+			url = selfHostedMavenUrl
+			credentials {
+				username = selfHostedMavenUser
+				password = selfHostedMavenPass
+			}
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
 	}
 }
