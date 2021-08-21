@@ -30,7 +30,7 @@
     "fabric": "*",
     "minecraft": "1.17.x",
     "java": ">=16",
-    "roundalib": ">=1.0.0"
+    "roundalib": ">=0.0.1"
   },
   "suggests": {
     "another-mod": "*"
