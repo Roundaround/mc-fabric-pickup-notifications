@@ -23,9 +23,4 @@ public class PickupNotificationsConfig extends ModConfig {
     public ImmutableList<ConfigOption<?>> getConfigOptions() {
         return ALL_CONFIG_OPTIONS;
     }
-
-    public void init() {
-        this.loadFromFile();
-        this.saveToFile();
-    }
 }
