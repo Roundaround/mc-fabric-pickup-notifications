@@ -12,6 +12,7 @@ public class PickupNotificationsConfig extends ModConfig {
     public static final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT = new OptionListConfigOption<>("guiAlignment", "config.label.gui_alignment", GuiAlignment.TOP_LEFT);
     public static final IntConfigOption GUI_OFFSET_X = new IntConfigOption("guiOffsetX", "config.label.gui_offset_x", 4);
     public static final IntConfigOption GUI_OFFSET_Y = new IntConfigOption("guiOffsetY", "config.label.gui_offset_y", 4);
+    public static final IntConfigOption MAX_NOTIFICATIONS = new IntConfigOption("maxNotifications", "config.label.max_notifications", 4);
 
     private static final ImmutableList<ConfigOption<?>> ALL_CONFIG_OPTIONS = ImmutableList.of(GUI_ALIGNMENT, GUI_OFFSET_X, GUI_OFFSET_Y);
 

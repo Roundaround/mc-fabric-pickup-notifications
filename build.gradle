@@ -11,8 +11,12 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven { url 'https://maven.quiltmc.org/repository/release/' }
+  maven {
+    name = "ModMenu"
+    url = "https://maven.terraformersmc.com/releases/"
+  }
 	maven {
+    name = "Local"
 		allowInsecureProtocol = true
 		url = selfHostedMavenUrl
 	}
