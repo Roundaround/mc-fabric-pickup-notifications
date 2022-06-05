@@ -1,7 +1,8 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
+
+import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.roundalib.config.value.GuiAlignment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -41,11 +42,11 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   public void render(MatrixStack matrixStack, int idx) {
-    GuiAlignment alignment = PickupNotificationsConfig.GUI_ALIGNMENT.getValue();
+    GuiAlignment alignment = PickupNotificationsMod.CONFIG.GUI_ALIGNMENT.getValue();
     int x = alignment.getPosX() +
-        PickupNotificationsConfig.GUI_OFFSET_X.getValue() * alignment.getOffsetMultiplierX();
+        PickupNotificationsMod.CONFIG.GUI_OFFSET_X.getValue() * alignment.getOffsetMultiplierX();
     int y = alignment.getPosY() +
-        PickupNotificationsConfig.GUI_OFFSET_Y.getValue() * alignment.getOffsetMultiplierY();
+        PickupNotificationsMod.CONFIG.GUI_OFFSET_Y.getValue() * alignment.getOffsetMultiplierY();
 
     MutableText text = getFormattedDisplayString();
     TextRenderer textRenderer = minecraft.textRenderer;
@@ -55,14 +56,15 @@ public class PickupNotificationLine extends DrawableHelper {
     int fullWidth = 3 * LEFT_PADDING + textWidth + spriteSize;
 
     if (alignment.getAlignmentX() == GuiAlignment.AlignmentX.RIGHT) {
-      x += fullWidth;
+      x -= fullWidth;
     }
 
     if (alignment.getAlignmentY() == GuiAlignment.AlignmentY.BOTTOM) {
+      // TODO: Fix bottom positioning & rendering
       y -= textRenderer.fontHeight + 2;
     }
 
-    x -= fullWidth * getXOffsetPercent();
+    x -= fullWidth * getXOffsetPercent() * alignment.getOffsetMultiplierX();
     y += idx * (textRenderer.fontHeight + 2) * alignment.getOffsetMultiplierY();
 
     renderBackgroundAndText(matrixStack, x, y, fullWidth);

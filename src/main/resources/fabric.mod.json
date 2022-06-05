@@ -26,13 +26,10 @@
     "pickupnotifications.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.11.3",
+    "fabricloader": ">=0.14.6",
     "fabric": "*",
-    "minecraft": "1.17.x",
-    "java": ">=16",
-    "roundalib": ">=0.0.1"
-  },
-  "suggests": {
-    "another-mod": "*"
+    "minecraft": "1.18.x",
+    "java": ">=17",
+    "roundalib": ">=0.1.8"
   }
 }

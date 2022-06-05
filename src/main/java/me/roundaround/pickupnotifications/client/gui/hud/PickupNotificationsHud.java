@@ -1,8 +1,11 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
+import java.util.Queue;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.Queues;
 
-import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
+import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -12,9 +15,6 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-
-import java.util.Queue;
-import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class PickupNotificationsHud extends DrawableHelper {
@@ -31,6 +31,10 @@ public class PickupNotificationsHud extends DrawableHelper {
   }
 
   private void render(MatrixStack matrixStack, float tickDelta) {
+    if (!PickupNotificationsMod.CONFIG.MOD_ENABLED.getValue()) {
+      return;
+    }
+
     if (CURRENTLY_SHOWN_NOTIFICATIONS.isEmpty()) {
       return;
     }
@@ -56,7 +60,7 @@ public class PickupNotificationsHud extends DrawableHelper {
         .collect(Collectors.toList())
         .forEach(CURRENTLY_SHOWN_NOTIFICATIONS::remove);
 
-    while (CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsConfig.MAX_NOTIFICATIONS.getValue()
+    while (CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue()
         && !NOTIFICATION_QUEUE.isEmpty()) {
       CURRENTLY_SHOWN_NOTIFICATIONS.add(NOTIFICATION_QUEUE.poll());
     }
@@ -85,7 +89,7 @@ public class PickupNotificationsHud extends DrawableHelper {
 
     if (!mergedIntoExisting) {
       PickupNotificationLine notification = new PickupNotificationLine(pickedUp);
-      if (CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsConfig.MAX_NOTIFICATIONS.getValue()
+      if (CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue()
           && NOTIFICATION_QUEUE.isEmpty()) {
         notification.pop();
         CURRENTLY_SHOWN_NOTIFICATIONS.add(notification);

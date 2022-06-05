@@ -1,7 +1,8 @@
 {
-  "modname": "Roundaround's Pickup Notifications",
-  "config.title": "Roundaround's Pickup Notifications Config",
-  "config.label.gui_alignment": "HUD alignment",
-  "config.label.gui_offset_x": "HUD horizontal offset",
-  "config.label.gui_offset_y": "HUD vertical offset"
+  "pickupnotifications.config.title": "Pickup Notifications Config",
+  "pickupnotifications.mod_enabled.label": "Mod enabled",
+  "pickupnotifications.gui_alignment.label": "HUD alignment",
+  "pickupnotifications.gui_offset_x.label": "HUD horizontal offset",
+  "pickupnotifications.gui_offset_y.label": "HUD vertical offset",
+  "pickupnotifications.max_notifications.label": "Maximum number of notifications"
 }
