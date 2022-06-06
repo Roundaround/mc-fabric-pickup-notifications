@@ -67,11 +67,11 @@ public class PickupNotificationLine extends DrawableHelper {
     x -= fullWidth * getXOffsetPercent() * alignment.getOffsetMultiplierX();
     y += idx * (textRenderer.fontHeight + 2) * alignment.getOffsetMultiplierY();
 
-    renderBackgroundAndText(matrixStack, x, y, fullWidth);
-    renderItem(x, y);
+    renderBackgroundAndText(matrixStack, idx, x, y, fullWidth);
+    renderItem(idx, x, y);
   }
 
-  private void renderBackgroundAndText(MatrixStack matrixStack, float x, float y, int width) {
+  private void renderBackgroundAndText(MatrixStack matrixStack, int idx, float x, float y, int width) {
     MutableText text = getFormattedDisplayString();
     TextRenderer textRenderer = minecraft.textRenderer;
 
@@ -83,7 +83,7 @@ public class PickupNotificationLine extends DrawableHelper {
 
     matrixStack.push();
     matrixStack.scale(1, 1, 1);
-    matrixStack.translate(x, y, 800 + y);
+    matrixStack.translate(x, y, 800 + idx);
 
     fill(matrixStack, -1, -1, width, height, genColorInt(0, 0, 0, backgroundOpacity));
 
@@ -99,7 +99,7 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.pop();
   }
 
-  private void renderItem(float x, float y) {
+  private void renderItem(int idx, float x, float y) {
     TextRenderer textRenderer = minecraft.textRenderer;
 
     int spriteSize = textRenderer.fontHeight + 1;
@@ -112,7 +112,7 @@ public class PickupNotificationLine extends DrawableHelper {
     RenderSystem.enableDepthTest();
     MatrixStack matrixStack = RenderSystem.getModelViewStack();
     matrixStack.push();
-    matrixStack.translate(0, 0, 801 + y);
+    matrixStack.translate(0, 0, 801 + idx);
 
     matrixStack.push();
     matrixStack.translate(xPos + 8 * spriteScale, yPos + 12 * spriteScale, 0);
