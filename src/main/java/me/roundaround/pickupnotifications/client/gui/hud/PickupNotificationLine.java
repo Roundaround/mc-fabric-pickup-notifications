@@ -60,7 +60,6 @@ public class PickupNotificationLine extends DrawableHelper {
     }
 
     if (alignment.getAlignmentY() == GuiAlignment.AlignmentY.BOTTOM) {
-      // TODO: Fix bottom positioning & rendering
       y -= textRenderer.fontHeight + 2;
     }
 
@@ -120,6 +119,7 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.translate(-(xPos + 8 * spriteScale), -(yPos + 12 * spriteScale), 0);
 
     RenderSystem.applyModelViewMatrix();
+    itemStack.setDamage(0);
     minecraft.getItemRenderer().renderInGui(itemStack, xPos - 4, yPos - 4);
 
     matrixStack.pop();
