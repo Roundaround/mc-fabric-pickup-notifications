@@ -1,0 +1,8 @@
+{
+  "pickupnotifications.config.title": "掉落物拾取提示配置",
+  "pickupnotifications.mod_enabled.label": "模组启用",
+  "pickupnotifications.gui_alignment.label": "HUD对齐方式",
+  "pickupnotifications.gui_offset_x.label": "HUD水平偏移",
+  "pickupnotifications.gui_offset_y.label": "HUD垂直偏移",
+  "pickupnotifications.max_notifications.label": "最大提示数量"
+}
