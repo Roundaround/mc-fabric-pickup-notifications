@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
@@ -66,7 +65,7 @@ public class PickupNotificationsHud extends DrawableHelper {
     }
   }
 
-  private void handleItemPickedUp(PlayerEntity player, ItemStack itemStack) {
+  private void handleItemPickedUp(ItemStack itemStack) {
     boolean mergedIntoExisting = false;
     ItemStack pickedUp = itemStack.copy();
     pickedUp.removeSubNbt("Enchantments");
