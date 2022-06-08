@@ -22,6 +22,7 @@ public abstract class PlayerInventoryMixin {
 
   @Inject(method = "insertStack(Lnet/minecraft/item/ItemStack;)Z", at = @At(value = "RETURN"))
   private void onInsertStackReturn(ItemStack stack, CallbackInfoReturnable<Boolean> info) {
+    // TODO: Figure out why this is showing 2x water bottles when filling
     if (info.getReturnValue()) {
       ItemPickupCallback.EVENT.invoker().interact(null, cachedItemStack);
     }
