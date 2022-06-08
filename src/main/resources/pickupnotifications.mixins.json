@@ -4,12 +4,7 @@
   "package": "me.roundaround.pickupnotifications.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ClientPlayNetworkHandlerMixin",
-    "ItemEntityMixin",
-    "LivingEntityMixin",
-    "PlayerInventoryMixin",
-    "ScreenHandlerMixin",
-    "ServerPlayerEntityMixin"
+    "ClientPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
