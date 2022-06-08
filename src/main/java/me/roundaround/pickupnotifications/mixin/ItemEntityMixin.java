@@ -12,18 +12,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin {
-    private ItemStack cachedItemStack = ItemStack.EMPTY;
+  private ItemStack cachedItemStack = ItemStack.EMPTY;
 
-    @Shadow
-    public abstract ItemStack getStack();
+  @Shadow
+  public abstract ItemStack getStack();
 
-    @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;getStack()Lnet/minecraft/item/ItemStack;"))
-    private void onPlayerCollision(PlayerEntity player, CallbackInfo info) {
-        cachedItemStack = this.getStack().copy();
-    }
+  @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;getStack()Lnet/minecraft/item/ItemStack;"))
+  private void onPlayerCollision(PlayerEntity player, CallbackInfo info) {
+    cachedItemStack = this.getStack().copy();
+  }
 
-    @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;sendPickup(Lnet/minecraft/entity/Entity;I)V"))
-    private void onItemPickup(PlayerEntity player, CallbackInfo info) {
-        ItemPickupCallback.EVENT.invoker().interact(player, cachedItemStack);
-    }
+  @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;sendPickup(Lnet/minecraft/entity/Entity;I)V"))
+  private void onItemPickup(PlayerEntity player, CallbackInfo info) {
+    // ItemPickupCallback.EVENT.invoker().interact(player, cachedItemStack);
+  }
 }
