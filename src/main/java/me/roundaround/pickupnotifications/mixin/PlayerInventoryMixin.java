@@ -11,7 +11,7 @@ import me.roundaround.pickupnotifications.event.ItemPickupCallback;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
 
 @Mixin(PlayerInventory.class)
 public abstract class PlayerInventoryMixin {
@@ -25,14 +25,16 @@ public abstract class PlayerInventoryMixin {
   private void onInsertStackHead(ItemStack stack, CallbackInfoReturnable<Boolean> info) {
     // TODO: Only work for ServerPlayerEntity on single player
     // TODO: Only work for ClientPlayerEntity on multi player
-    if (player instanceof ServerPlayerEntity) {
+    World world = player.getWorld();
+    if (!world.isClient) {
       cachedItemStack = stack.copy();
     }
   }
 
   @Inject(method = "insertStack(Lnet/minecraft/item/ItemStack;)Z", at = @At(value = "RETURN"))
   private void onInsertStackReturn(ItemStack stack, CallbackInfoReturnable<Boolean> info) {
-    if (player instanceof ServerPlayerEntity && info.getReturnValue()) {
+    World world = player.getWorld();
+    if (!world.isClient && info.getReturnValue()) {
       ItemPickupCallback.EVENT.invoker().interact(cachedItemStack);
     }
   }
