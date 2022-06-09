@@ -9,8 +9,8 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 public class PickupNotificationLine extends DrawableHelper {
@@ -74,8 +74,8 @@ public class PickupNotificationLine extends DrawableHelper {
     MutableText text = getFormattedDisplayString();
     TextRenderer textRenderer = minecraft.textRenderer;
 
-    float textOpacity = (float) minecraft.options.chatOpacity * 0.9f + 0.1f;
-    float backgroundOpacity = (float) minecraft.options.textBackgroundOpacity;
+    float textOpacity = minecraft.options.getChtOpacity().getValue().floatValue() * 0.9f + 0.1f;
+    float backgroundOpacity = (float) minecraft.options.getTextBackgroundOpacity(0.5f);
 
     int height = textRenderer.fontHeight + 1;
     int spriteSize = height;
@@ -150,7 +150,7 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private MutableText getFormattedDisplayString() {
-    return new LiteralText(itemStack.getCount() + "x ").append(itemStack.getItem().getName());
+    return Text.literal(itemStack.getCount() + "x ").append(itemStack.getItem().getName());
   }
 
   private float getXOffsetPercent() {
