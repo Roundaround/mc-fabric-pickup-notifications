@@ -9,6 +9,7 @@ import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -20,13 +21,31 @@ public class PickupNotificationsHud extends DrawableHelper {
   private final Queue<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS = Queues.newArrayDeque();
   private final Queue<PickupNotificationLine> NOTIFICATION_QUEUE = Queues.newArrayDeque();
 
-  private MinecraftClient minecraft;
-
   public void init() {
-    minecraft = MinecraftClient.getInstance();
-
+    ClientTickEvents.END_CLIENT_TICK.register(this::tick);
     HudRenderCallback.EVENT.register(this::render);
     ItemPickupCallback.EVENT.register(this::handleItemPickedUp);
+  }
+
+  private void tick(final MinecraftClient client) {
+    if (!PickupNotificationsMod.CONFIG.MOD_ENABLED.getValue()) {
+      return;
+    }
+
+    if (CURRENTLY_SHOWN_NOTIFICATIONS.isEmpty()) {
+      return;
+    }
+
+    CURRENTLY_SHOWN_NOTIFICATIONS.forEach(notification -> notification.tick());
+    CURRENTLY_SHOWN_NOTIFICATIONS.stream()
+        .filter(PickupNotificationLine::isExpired)
+        .collect(Collectors.toList())
+        .forEach(CURRENTLY_SHOWN_NOTIFICATIONS::remove);
+
+    while (CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue()
+        && !NOTIFICATION_QUEUE.isEmpty()) {
+      CURRENTLY_SHOWN_NOTIFICATIONS.add(NOTIFICATION_QUEUE.poll());
+    }
   }
 
   private void render(MatrixStack matrixStack, float tickDelta) {
@@ -38,10 +57,6 @@ public class PickupNotificationsHud extends DrawableHelper {
       return;
     }
 
-    if (!minecraft.isPaused()) {
-      tick(tickDelta);
-    }
-
     if (!MinecraftClient.isHudEnabled()) {
       return;
     }
@@ -49,19 +64,6 @@ public class PickupNotificationsHud extends DrawableHelper {
     int i = 0;
     for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
       notification.render(matrixStack, i++);
-    }
-  }
-
-  private void tick(float tickDelta) {
-    CURRENTLY_SHOWN_NOTIFICATIONS.forEach(notification -> notification.tick(tickDelta));
-    CURRENTLY_SHOWN_NOTIFICATIONS.stream()
-        .filter(PickupNotificationLine::isExpired)
-        .collect(Collectors.toList())
-        .forEach(CURRENTLY_SHOWN_NOTIFICATIONS::remove);
-
-    while (CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue()
-        && !NOTIFICATION_QUEUE.isEmpty()) {
-      CURRENTLY_SHOWN_NOTIFICATIONS.add(NOTIFICATION_QUEUE.poll());
     }
   }
 

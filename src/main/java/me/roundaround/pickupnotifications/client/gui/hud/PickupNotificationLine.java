@@ -11,22 +11,24 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
 public class PickupNotificationLine extends DrawableHelper {
-  public static final float SHOW_DURATION = 120f;
-  public static final float DURATION_INCREASE_ON_ADD = 60f;
-  public static final float POP_DURATION = 5f;
-  public static final float ANIM_DURATION = 6f;
-  public static final float ANIM_IN_FINISH_TIME = SHOW_DURATION - ANIM_DURATION;
+  public static final int SHOW_DURATION = 120;
+  public static final int DURATION_INCREASE_ON_ADD = 60;
+  public static final int POP_DURATION = 5;
+  public static final int ANIM_DURATION = 6;
+  public static final int ANIM_IN_FINISH_TIME = SHOW_DURATION - ANIM_DURATION;
   public static final int SPRITE_RAW_SIZE = 16;
   public static final int LEFT_PADDING = 1;
 
   private final ItemStack itemStack;
   private final MinecraftClient minecraft;
-  private float originalTimeRemaining;
-  private float timeRemaining;
-  private float popTimeRemaining;
+  private int originalTimeRemaining;
+  private int timeRemaining;
+  private int popTimeRemaining;
+  private long lastTick;
 
   public PickupNotificationLine(ItemStack initialItems) {
     itemStack = initialItems.copy();
@@ -35,10 +37,11 @@ public class PickupNotificationLine extends DrawableHelper {
     timeRemaining = SHOW_DURATION;
   }
 
-  public void tick(float tickDelta) {
-    timeRemaining -= tickDelta;
-    originalTimeRemaining -= tickDelta;
-    popTimeRemaining -= tickDelta;
+  public void tick() {
+    timeRemaining--;
+    originalTimeRemaining--;
+    popTimeRemaining--;
+    lastTick = Util.getMeasuringTimeMs();
   }
 
   public void render(MatrixStack matrixStack, int idx) {
@@ -154,14 +157,20 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private float getXOffsetPercent() {
+    long renderTime = Util.getMeasuringTimeMs();
+
+    // 50ms per tick
+    float partialTick = MathHelper.clamp((renderTime - lastTick) / 50f, 0, 1);
+    float partialTimeRemaining = timeRemaining - partialTick;
+
     if (originalTimeRemaining > ANIM_IN_FINISH_TIME) {
       // Animating in
-      float animTime = Math.max(0f, timeRemaining) - ANIM_IN_FINISH_TIME;
+      float animTime = Math.max(0f, partialTimeRemaining) - ANIM_IN_FINISH_TIME;
       float basePercent = MathHelper.clamp(animTime / ANIM_DURATION, 0, 1);
       return basePercent * basePercent;
-    } else if (timeRemaining < ANIM_DURATION) {
+    } else if (partialTimeRemaining < ANIM_DURATION) {
       // Animating out
-      float animTime = Math.max(0f, timeRemaining);
+      float animTime = Math.max(0f, partialTimeRemaining);
       float basePercent = MathHelper.clamp(animTime / ANIM_DURATION, 0, 1);
       return 1f - (basePercent * basePercent);
     } else {
