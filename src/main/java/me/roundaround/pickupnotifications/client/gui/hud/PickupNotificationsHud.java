@@ -36,8 +36,8 @@ public class PickupNotificationsHud extends DrawableHelper {
       return;
     }
 
-    CURRENTLY_SHOWN_NOTIFICATIONS.forEach(notification -> notification.tick());
     CURRENTLY_SHOWN_NOTIFICATIONS.stream()
+        .peek(PickupNotificationLine::tick)
         .filter(PickupNotificationLine::isExpired)
         .collect(Collectors.toList())
         .forEach(CURRENTLY_SHOWN_NOTIFICATIONS::remove);
