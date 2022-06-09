@@ -32,6 +32,11 @@ public abstract class ClientPlayNetworkHandlerMixin {
 
   @Inject(method = "onItemPickupAnimation", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread", shift = At.Shift.AFTER))
   private void onItemPickupAnimation(ItemPickupAnimationS2CPacket packet, CallbackInfo info) {
+    // If any screen is open, onScreenHandlerSlotUpdate isn't fired.
+    if (client.player.currentScreenHandler.equals(client.player.playerScreenHandler)) {
+      return;
+    }
+
     Entity entity = world.getEntityById(packet.getCollectorEntityId());
     if (!(entity instanceof ClientPlayerEntity)) {
       return;
@@ -45,10 +50,10 @@ public abstract class ClientPlayNetworkHandlerMixin {
     ItemStack itemStack = ((ItemEntity) itemEntity).getStack().copy();
     itemStack.setCount(packet.getStackAmount());
 
-    PickupNotificationsMod.LOGGER.info("===================");
-    PickupNotificationsMod.LOGGER.info("onItemPickupAnimation");
-    PickupNotificationsMod.LOGGER.info(itemStack);
-    PickupNotificationsMod.LOGGER.info("===================");
+    PickupNotificationsMod.LOGGER.debug("===================");
+    PickupNotificationsMod.LOGGER.debug("onItemPickupAnimation");
+    PickupNotificationsMod.LOGGER.debug(itemStack);
+    PickupNotificationsMod.LOGGER.debug("===================");
 
     ItemPickupCallback.EVENT.invoker().interact(itemStack);
   }
@@ -57,20 +62,15 @@ public abstract class ClientPlayNetworkHandlerMixin {
   private void onScreenHandlerSlotUpdate(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo info) {
     ClientPlayerEntity playerEntity = client.player;
     ItemStack currentlyHeld = playerEntity.playerScreenHandler.getSlot(packet.getSlot()).getStack();
-
-    if (currentlyHeld.isEmpty()) {
-      return;
-    }
-
     int difference = packet.getItemStack().getCount() - currentlyHeld.getCount();
 
-    ItemStack itemStack = currentlyHeld.copy();
+    ItemStack itemStack = packet.getItemStack().copy();
     itemStack.setCount(difference);
 
-    PickupNotificationsMod.LOGGER.info("===================");
-    PickupNotificationsMod.LOGGER.info("onScreenHandlerSlotUpdate");
-    PickupNotificationsMod.LOGGER.info(itemStack);
-    PickupNotificationsMod.LOGGER.info("===================");
+    PickupNotificationsMod.LOGGER.debug("===================");
+    PickupNotificationsMod.LOGGER.debug("onScreenHandlerSlotUpdate");
+    PickupNotificationsMod.LOGGER.debug(itemStack);
+    PickupNotificationsMod.LOGGER.debug("===================");
 
     ItemPickupCallback.EVENT.invoker().interact(itemStack);
   }
