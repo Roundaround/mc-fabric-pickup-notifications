@@ -107,7 +107,13 @@ public class PickupNotificationLine extends DrawableHelper {
     int spriteSize = textRenderer.fontHeight + 1;
     float spriteScale = (float) spriteSize / SPRITE_RAW_SIZE;
 
-    float popScale = 1f + MathHelper.clamp(popTimeRemaining, 0, 5) / 5f;
+    long renderTime = Util.getMeasuringTimeMs();
+
+    // 50ms per tick
+    float partialTick = MathHelper.clamp((renderTime - lastTick) / 50f, 0, 1);
+    float partialPopTimeRemaining = popTimeRemaining - partialTick;
+
+    float popScale = 1f + MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
     int xPos = Math.round(x + LEFT_PADDING - 1);
     int yPos = Math.round(y - 0.75f);
 
