@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -18,9 +19,22 @@ public abstract class ScreenHandlerMixin {
   abstract Slot getSlot(int index);
 
   @Inject(method = "setStackInSlot", at = @At(value = "HEAD"))
-  private void setStackInSlot(int slot, int revision, ItemStack stack, CallbackInfo info) {
-    ItemStack currentlyHeld = getSlot(slot).getStack();
+  private void setStackInSlot(int index, int revision, ItemStack stack, CallbackInfo info) {
+    if (stack.isEmpty()) {
+      return;
+    }
+
+    Slot slot = getSlot(index);
+    if (!(slot.inventory instanceof PlayerInventory)) {
+      return;
+    }
+
+    ItemStack currentlyHeld = slot.getStack();
     int difference = stack.getCount() - currentlyHeld.getCount();
+
+    if (difference <= 0) {
+      return;
+    }
 
     ItemStack itemStack = stack.copy();
     itemStack.setCount(difference);
