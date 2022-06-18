@@ -149,7 +149,7 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.translate(-(xPos + 8 * spriteScale), -(yPos + 12 * spriteScale), 0);
 
     RenderSystem.applyModelViewMatrix();
-    minecraft.getItemRenderer().renderInGui(itemStack, xPos - 4, yPos - 4);
+    minecraft.getItemRenderer().renderInGuiWithOverrides(itemStack, xPos - 4, yPos - 4);
 
     matrixStack.pop();
     matrixStack.pop();

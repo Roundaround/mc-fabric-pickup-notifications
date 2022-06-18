@@ -53,6 +53,8 @@ public abstract class CheckForNewItems {
     // player's inventory, causing notifications.
 
     // TODO: When multicrafting, the results cause notifications.
+    // See ScreenHandler.transferSlot (called in internal function under
+    // QUICK_MOVE block)
 
     InventorySnapshot diff = current.diff(previous);
 
