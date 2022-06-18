@@ -3,6 +3,9 @@ package me.roundaround.pickupnotifications.util;
 import java.util.HashSet;
 
 import me.roundaround.pickupnotifications.network.ItemAddedPacket;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.CraftingResultInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -20,6 +23,11 @@ public abstract class CheckForNewItems {
     HashSet<Integer> playerSlotsWithChanges = new HashSet<>();
 
     for (int i = 0; i < screenHandler.slots.size(); ++i) {
+      Inventory inventory = screenHandler.getSlot(i).inventory;
+      if (inventory instanceof CraftingResultInventory) {
+        continue;
+      }
+
       ItemStack prevStack = previousTrackedStacks.get(i);
       ItemStack currStack = screenHandler.getSlot(i).getStack();
 
@@ -27,14 +35,16 @@ public abstract class CheckForNewItems {
         continue;
       }
 
-      if (ItemStack.areEqual(prevStack, currStack)) {
+      if (areItemStacksEqualIgnoreDamage(prevStack, currStack)) {
         continue;
       }
 
       previous.add(prevStack);
       current.add(currStack);
 
-      playerSlotsWithChanges.add(i);
+      if (inventory instanceof PlayerInventory && !currStack.isEmpty()) {
+        playerSlotsWithChanges.add(i);
+      }
     }
 
     if (playerSlotsWithChanges.isEmpty()) {
@@ -66,5 +76,15 @@ public abstract class CheckForNewItems {
         ItemAddedPacket.sendToPlayer(player, stackChange);
       }
     }
+  }
+
+  private static boolean areItemStacksEqualIgnoreDamage(ItemStack a, ItemStack b) {
+    ItemStack aCopy = a.copy();
+    a.setDamage(0);
+
+    ItemStack bCopy = b.copy();
+    b.setDamage(0);
+
+    return ItemStack.areEqual(aCopy, bCopy);
   }
 }
