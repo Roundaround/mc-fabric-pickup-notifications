@@ -69,9 +69,7 @@ public class PickupNotificationsHud extends DrawableHelper {
 
   private void handleItemPickedUp(ItemStack itemStack) {
     boolean mergedIntoExisting = false;
-
     ItemStack pickedUp = itemStack.copy();
-    pickedUp.setDamage(pickedUp.getMaxDamage());
 
     if (!PickupNotificationsMod.CONFIG.SHOW_UNIQUE_INFO.getValue()) {
       pickedUp.removeCustomName();
