@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen.CreativeScreenHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -41,6 +42,10 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer {
   @Inject(method = "sendContentUpdates", at = @At(value = "HEAD"))
   public void sendContentUpdates(CallbackInfo info) {
     if (disableSync) {
+      return;
+    }
+
+    if (player == null) {
       return;
     }
 
