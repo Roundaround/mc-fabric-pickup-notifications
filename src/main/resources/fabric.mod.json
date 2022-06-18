@@ -13,7 +13,7 @@
   },
   "license": "MIT",
   "icon": "assets/pickupnotifications/icon.png",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "me.roundaround.pickupnotifications.PickupNotificationsMod"
