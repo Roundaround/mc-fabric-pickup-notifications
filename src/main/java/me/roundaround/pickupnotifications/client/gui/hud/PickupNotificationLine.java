@@ -98,7 +98,9 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.scale(1, 1, 1);
     matrixStack.translate(x, y, 800 + idx);
 
-    fill(matrixStack, -1, -1, width, height, genColorInt(0, 0, 0, backgroundOpacity));
+    if (PickupNotificationsMod.CONFIG.RENDER_BACKGROUND.getValue()) {
+      fill(matrixStack, -1, -1, width, height, genColorInt(0, 0, 0, backgroundOpacity));
+    }
 
     {
       matrixStack.push();

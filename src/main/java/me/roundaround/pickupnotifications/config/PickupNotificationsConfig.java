@@ -18,6 +18,7 @@ public class PickupNotificationsConfig extends ModConfig {
   public final IntConfigOption MAX_NOTIFICATIONS;
   public final OptionListConfigOption<IconAlignment> ICON_ALIGNMENT;
   public final BooleanConfigOption SHOW_UNIQUE_INFO;
+  public final BooleanConfigOption RENDER_BACKGROUND;
 
   public PickupNotificationsConfig() {
     super(PickupNotificationsMod.MOD_ID);
@@ -80,6 +81,12 @@ public class PickupNotificationsConfig extends ModConfig {
             .yesNoBuilder("showUniqueInfo", "pickupnotifications.show_unique_info.label")
             .setComment("Whether to show custom names, rarity, and enchantments\n"
                 + " in the notifications.")
+            .build());
+
+    RENDER_BACKGROUND = registerConfigOption(
+        BooleanConfigOption
+            .yesNoBuilder("renderBackground", "pickupnotifications.render_background.label")
+            .setComment("Whether to render the background behind notifications.")
             .build());
   }
 }
