@@ -3,6 +3,7 @@ package me.roundaround.pickupnotifications.client.gui.hud;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
+import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.roundalib.config.value.GuiAlignment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -70,10 +71,18 @@ public class PickupNotificationLine extends DrawableHelper {
     y += idx * (textRenderer.fontHeight + 2) * alignment.getOffsetMultiplierY();
 
     renderBackgroundAndText(matrixStack, idx, x, y, fullWidth);
-    renderItem(idx, x, y);
+    renderItem(idx, x, y, fullWidth);
   }
 
   private void renderBackgroundAndText(MatrixStack matrixStack, int idx, float x, float y, int width) {
+    boolean guiRight = PickupNotificationsMod.CONFIG.GUI_ALIGNMENT
+        .getValue()
+        .getAlignmentX()
+        .equals(GuiAlignment.AlignmentX.RIGHT);
+    IconAlignment iconAlignment = PickupNotificationsMod.CONFIG.ICON_ALIGNMENT.getValue();
+    boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT)
+        || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
+
     MutableText text = getFormattedDisplayString();
     TextRenderer textRenderer = minecraft.textRenderer;
 
@@ -82,6 +91,7 @@ public class PickupNotificationLine extends DrawableHelper {
 
     int height = textRenderer.fontHeight + 1;
     int spriteSize = height;
+    int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + spriteSize;
 
     matrixStack.push();
     matrixStack.scale(1, 1, 1);
@@ -91,7 +101,7 @@ public class PickupNotificationLine extends DrawableHelper {
 
     {
       matrixStack.push();
-      matrixStack.translate(2 * LEFT_PADDING + spriteSize, 0.5f, 0);
+      matrixStack.translate(leftPad, 0.5f, 0);
       RenderSystem.enableBlend();
       textRenderer.draw(matrixStack, text, 0, 0, genColorInt(1, 1, 1, textOpacity));
       RenderSystem.disableBlend();
@@ -101,7 +111,15 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.pop();
   }
 
-  private void renderItem(int idx, float x, float y) {
+  private void renderItem(int idx, float x, float y, int width) {
+    boolean guiRight = PickupNotificationsMod.CONFIG.GUI_ALIGNMENT
+        .getValue()
+        .getAlignmentX()
+        .equals(GuiAlignment.AlignmentX.RIGHT);
+    IconAlignment iconAlignment = PickupNotificationsMod.CONFIG.ICON_ALIGNMENT.getValue();
+    boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT)
+        || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
+
     TextRenderer textRenderer = minecraft.textRenderer;
 
     int spriteSize = textRenderer.fontHeight + 1;
@@ -114,7 +132,7 @@ public class PickupNotificationLine extends DrawableHelper {
     float partialPopTimeRemaining = popTimeRemaining - partialTick;
 
     float popScale = 1f + MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
-    int xPos = Math.round(x + LEFT_PADDING - 1);
+    int xPos = Math.round(rightAligned ? x + width - spriteSize - LEFT_PADDING + 1 : x + LEFT_PADDING - 1);
     int yPos = Math.round(y - 0.75f);
 
     RenderSystem.enableDepthTest();

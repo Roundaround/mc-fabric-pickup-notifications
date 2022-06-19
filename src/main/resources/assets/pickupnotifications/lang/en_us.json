@@ -4,5 +4,10 @@
   "pickupnotifications.gui_alignment.label": "HUD alignment",
   "pickupnotifications.gui_offset_x.label": "HUD horizontal offset",
   "pickupnotifications.gui_offset_y.label": "HUD vertical offset",
-  "pickupnotifications.max_notifications.label": "Maximum number of notifications"
+  "pickupnotifications.max_notifications.label": "Maximum number of notifications",
+  "pickupnotifications.icon_alignment.label": "Item icon alignment",
+  "pickupnotifications.icon_alignment.outside": "Outside",
+  "pickupnotifications.icon_alignment.inside": "Inside",
+  "pickupnotifications.icon_alignment.left": "Left",
+  "pickupnotifications.icon_alignment.right": "Right"
 }
