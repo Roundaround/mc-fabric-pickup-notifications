@@ -67,7 +67,7 @@ public class PickupNotificationsConfig extends ModConfig {
 
     ICON_ALIGNMENT = registerConfigOption(
         OptionListConfigOption
-            .builder("iconAlignment", "pickupnotifications.icons_on_left.label", IconAlignment.getDefault())
+            .builder("iconAlignment", "pickupnotifications.icon_alignment.label", IconAlignment.getDefault())
             .setComment("Whether the item icons should appear on the 'left' or\n"
               + " 'right' of notifications, always on the 'outside' (left for\n"
               + " left-aligned, right for right-aligned), or always on the\n"
