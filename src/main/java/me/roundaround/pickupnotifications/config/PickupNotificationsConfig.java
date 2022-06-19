@@ -17,6 +17,7 @@ public class PickupNotificationsConfig extends ModConfig {
   public final IntConfigOption GUI_OFFSET_Y;
   public final IntConfigOption MAX_NOTIFICATIONS;
   public final OptionListConfigOption<IconAlignment> ICON_ALIGNMENT;
+  public final BooleanConfigOption SHOW_UNIQUE_INFO;
 
   public PickupNotificationsConfig() {
     super(PickupNotificationsMod.MOD_ID);
@@ -69,9 +70,16 @@ public class PickupNotificationsConfig extends ModConfig {
         OptionListConfigOption
             .builder("iconAlignment", "pickupnotifications.icon_alignment.label", IconAlignment.getDefault())
             .setComment("Whether the item icons should appear on the 'left' or\n"
-              + " 'right' of notifications, always on the 'outside' (left for\n"
-              + " left-aligned, right for right-aligned), or always on the\n"
-              + " 'inside' of notifications.")
+                + " 'right' of notifications, always on the 'outside' (left for\n"
+                + " left-aligned, right for right-aligned), or always on the\n"
+                + " 'inside' of notifications.")
+            .build());
+
+    SHOW_UNIQUE_INFO = registerConfigOption(
+        BooleanConfigOption
+            .yesNoBuilder("showUniqueInfo", "pickupnotifications.show_unique_info.label")
+            .setComment("Whether to show custom names, rarity, and enchantments\n"
+                + " in the notifications.")
             .build());
   }
 }

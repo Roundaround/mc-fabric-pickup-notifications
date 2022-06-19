@@ -69,9 +69,14 @@ public class PickupNotificationsHud extends DrawableHelper {
 
   private void handleItemPickedUp(ItemStack itemStack) {
     boolean mergedIntoExisting = false;
+
     ItemStack pickedUp = itemStack.copy();
-    pickedUp.removeSubNbt("Enchantments");
     pickedUp.setDamage(pickedUp.getMaxDamage());
+
+    if (!PickupNotificationsMod.CONFIG.SHOW_UNIQUE_INFO.getValue()) {
+      pickedUp.removeCustomName();
+      pickedUp.removeSubNbt("Enchantments");
+    }
 
     for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
       if (mergedIntoExisting = notification.attemptAdd(pickedUp)) {

@@ -6,6 +6,7 @@
   "pickupnotifications.gui_offset_y.label": "HUD vertical offset",
   "pickupnotifications.max_notifications.label": "Maximum number of notifications",
   "pickupnotifications.icon_alignment.label": "Item icon alignment",
+  "pickupnotifications.show_unique_info.label": "Show custom name, rarity, & enchant glow",
   "pickupnotifications.icon_alignment.outside": "Outside",
   "pickupnotifications.icon_alignment.inside": "Inside",
   "pickupnotifications.icon_alignment.left": "Left",

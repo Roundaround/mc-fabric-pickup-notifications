@@ -12,6 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
@@ -146,7 +147,6 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.translate(-(xPos + 8 * spriteScale), -(yPos + 12 * spriteScale), 0);
 
     RenderSystem.applyModelViewMatrix();
-    itemStack.setDamage(0);
     minecraft.getItemRenderer().renderInGui(itemStack, xPos - 4, yPos - 4);
 
     matrixStack.pop();
@@ -177,7 +177,14 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private MutableText getFormattedDisplayString() {
-    return Text.literal(itemStack.getCount() + "x ").append(itemStack.getItem().getName());
+    MutableText name = Text.empty().append(itemStack.getName());
+    if (PickupNotificationsMod.CONFIG.SHOW_UNIQUE_INFO.getValue()) {
+      name.formatted(itemStack.getRarity().formatting);
+      if (itemStack.hasCustomName()) {
+        name.formatted(Formatting.ITALIC);
+      }
+    }
+    return Text.literal(itemStack.getCount() + "x ").append(name);
   }
 
   private float getXOffsetPercent() {
