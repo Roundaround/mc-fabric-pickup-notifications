@@ -2,6 +2,9 @@ package me.roundaround.pickupnotifications.config;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
+import me.roundaround.roundalib.config.gui.control.OptionListControl;
+import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry.RegistrationException;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
@@ -13,9 +16,18 @@ public class PickupNotificationsConfig extends ModConfig {
   public final IntConfigOption GUI_OFFSET_X;
   public final IntConfigOption GUI_OFFSET_Y;
   public final IntConfigOption MAX_NOTIFICATIONS;
+  public final OptionListConfigOption<IconAlignment> ICON_ALIGNMENT;
+  public final BooleanConfigOption SHOW_UNIQUE_INFO;
+  public final BooleanConfigOption RENDER_BACKGROUND;
 
   public PickupNotificationsConfig() {
     super(PickupNotificationsMod.MOD_ID);
+
+    try {
+      ControlFactoryRegistry.registerOptionList(IconAlignment.class, OptionListControl::new);
+    } catch (RegistrationException e) {
+      // Deal with this later xD
+    }
 
     MOD_ENABLED = registerConfigOption(
         BooleanConfigOption
@@ -53,6 +65,28 @@ public class PickupNotificationsConfig extends ModConfig {
             .setComment("How many notifications can be on the screen at a time.\n"
                 + " Additional notifications will be queued up and shown once\n"
                 + " there is room.")
+            .build());
+
+    ICON_ALIGNMENT = registerConfigOption(
+        OptionListConfigOption
+            .builder("iconAlignment", "pickupnotifications.icon_alignment.label", IconAlignment.getDefault())
+            .setComment("Whether the item icons should appear on the 'left' or\n"
+                + " 'right' of notifications, always on the 'outside' (left for\n"
+                + " left-aligned, right for right-aligned), or always on the\n"
+                + " 'inside' of notifications.")
+            .build());
+
+    SHOW_UNIQUE_INFO = registerConfigOption(
+        BooleanConfigOption
+            .yesNoBuilder("showUniqueInfo", "pickupnotifications.show_unique_info.label")
+            .setComment("Whether to show custom names, rarity, and enchantments\n"
+                + " in the notifications.")
+            .build());
+
+    RENDER_BACKGROUND = registerConfigOption(
+        BooleanConfigOption
+            .yesNoBuilder("renderBackground", "pickupnotifications.render_background.label")
+            .setComment("Whether to render the background behind notifications.")
             .build());
   }
 }

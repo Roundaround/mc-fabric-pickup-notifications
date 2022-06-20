@@ -13,7 +13,7 @@
   },
   "license": "MIT",
   "icon": "assets/pickupnotifications/icon.png",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "me.roundaround.pickupnotifications.PickupNotificationsMod"
@@ -26,7 +26,7 @@
     "pickupnotifications.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.6",
+    "fabricloader": ">=0.13.3",
     "fabric": "*",
     "minecraft": "1.18.x",
     "java": ">=17",
