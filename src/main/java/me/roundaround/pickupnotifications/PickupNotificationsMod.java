@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import me.roundaround.pickupnotifications.client.gui.hud.PickupNotificationsHud;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
+import me.roundaround.pickupnotifications.network.ItemAddedPacket;
 import net.fabricmc.api.ClientModInitializer;
 
 public final class PickupNotificationsMod implements ClientModInitializer {
@@ -18,5 +19,7 @@ public final class PickupNotificationsMod implements ClientModInitializer {
   public void onInitializeClient() {
     CONFIG.init();
     pickupNotificationsHud.init();
+
+    ItemAddedPacket.registerReceive();
   }
 }
