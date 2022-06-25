@@ -16,6 +16,7 @@ public abstract class CheckForNewItems {
       ScreenHandler screenHandler,
       DefaultedList<ItemStack> previousTrackedStacks,
       ItemStack previousCursorStack,
+      InventorySnapshot extraItemsForPrevious,
       ServerPlayerEntity player) {
 
     InventorySnapshot previous = new InventorySnapshot();
@@ -59,17 +60,18 @@ public abstract class CheckForNewItems {
       current.add(screenHandler.getCursorStack());
     }
 
-    // TODO: When closing a crafting screen, the unused items are returned to
-    // player's inventory, causing notifications.
-
-    // TODO: When multicrafting, the results cause notifications.
-    // See ScreenHandler.transferSlot (called in internal function under
-    // QUICK_MOVE block)
+    if (!extraItemsForPrevious.isEmpty()) {
+      previous.addAll(extraItemsForPrevious);
+    }
 
     InventorySnapshot diff = current.diff(previous);
 
     for (int i : playerSlotsWithChanges) {
       ItemStack stackChange = screenHandler.getSlot(i).getStack().copy();
+      if (stackChange.isEmpty()) {
+        continue;
+      }
+
       int changed = diff.takeFor(stackChange);
       if (changed > 0) {
         stackChange.setCount(changed);
