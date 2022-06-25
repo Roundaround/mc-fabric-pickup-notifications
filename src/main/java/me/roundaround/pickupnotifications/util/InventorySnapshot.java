@@ -35,6 +35,24 @@ public class InventorySnapshot implements Iterable<ItemStack> {
     }
   }
 
+  public void addAll(Iterable<ItemStack> stacks) {
+    for (ItemStack stack : stacks) {
+      add(stack);
+    }
+  }
+
+  public boolean isEmpty() {
+    return internal.isEmpty();
+  }
+
+  public void clear() {
+    internal.clear();
+  }
+
+  public int size() {
+    return internal.values().stream().mapToInt(ArrayList::size).sum();
+  }
+
   public int getCount(ItemStack source) {
     if (source.isEmpty()) {
       return 0;

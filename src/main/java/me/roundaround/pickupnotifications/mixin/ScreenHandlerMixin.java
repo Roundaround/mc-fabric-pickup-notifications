@@ -4,21 +4,31 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import me.roundaround.pickupnotifications.PickupNotificationsMod;
+import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen.CreativeScreenHandler;
+import me.roundaround.pickupnotifications.util.InventorySnapshot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 
 @Mixin(ScreenHandler.class)
-public abstract class ScreenHandlerMixin implements HasServerPlayer {
+public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegisterScreenCloseItems {
   private ServerPlayerEntity player;
   private boolean firstRun = true;
+  private boolean pauseNotifications = false;
+  private InventorySnapshot quickCraftItems = new InventorySnapshot();
+  private InventorySnapshot returnedItemsFromScreenClose = new InventorySnapshot();
 
   @Shadow
   boolean disableSync;
@@ -35,17 +45,71 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer {
   @Shadow
   abstract ItemStack getCursorStack();
 
+  @Override
   public void setPlayer(ServerPlayerEntity player) {
     this.player = player;
   }
 
-  @Inject(method = "sendContentUpdates", at = @At(value = "HEAD"))
-  public void sendContentUpdates(CallbackInfo info) {
-    if (disableSync) {
+  @Override
+  public void registerScreenCloseReturns(ItemStack stack) {
+    returnedItemsFromScreenClose.add(stack);
+  }
+
+  @Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;transferSlot", ordinal = 0))
+  public void beforeFirstTransferSlot(
+      int slotIndex,
+      int button,
+      SlotActionType actionType,
+      PlayerEntity player,
+      CallbackInfo info) {
+    pauseNotifications = true;
+  }
+
+  @Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;transferSlot"))
+  public ItemStack wrapTransferSlot(
+      ScreenHandler self,
+      PlayerEntity player,
+      int slotIndex) {
+    ItemStack result = self.transferSlot(player, slotIndex);
+
+    if (result.isEmpty()) {
+      pauseNotifications = false;
+    } else {
+      quickCraftItems.add(result.copy());
+    }
+
+    return result;
+  }
+
+  @Inject(method = "dropInventory", at = @At(value = "HEAD"))
+  public void dropInventory(PlayerEntity player, Inventory inventory, CallbackInfo info) {
+    if (!(player instanceof ServerPlayerEntity)) {
       return;
     }
 
-    if (player == null) {
+    if (!player.isAlive() || ((ServerPlayerEntity) player).isDisconnected()) {
+      return;
+    }
+
+    if (inventory instanceof PlayerInventory) {
+      return;
+    }
+
+    if (!(player.playerScreenHandler instanceof CanRegisterScreenCloseItems)) {
+      return;
+    }
+
+    for (int i = 0; i < inventory.size(); i++) {
+      // Register under the playerScreenHandler since currentScreenHandler is
+      // closing - the diff checking will happen there.
+      ((CanRegisterScreenCloseItems) player.playerScreenHandler)
+          .registerScreenCloseReturns(inventory.getStack(i).copy());
+    }
+  }
+
+  @Inject(method = "sendContentUpdates", at = @At(value = "HEAD"))
+  public void sendContentUpdates(CallbackInfo info) {
+    if (pauseNotifications || disableSync || player == null) {
       return;
     }
 
@@ -54,10 +118,25 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer {
       return;
     }
 
+    // Declaring a separate snapshot so that we can collect bits from different
+    // sources while keeping them separate.
+    InventorySnapshot extraItemsForPrevious = new InventorySnapshot();
+
+    if (!quickCraftItems.isEmpty()) {
+      extraItemsForPrevious.addAll(quickCraftItems);
+      quickCraftItems.clear();
+    }
+
+    if (!returnedItemsFromScreenClose.isEmpty()) {
+      extraItemsForPrevious.addAll(returnedItemsFromScreenClose);
+      returnedItemsFromScreenClose.clear();
+    }
+
     CheckForNewItems.run(
         ((ScreenHandler) (Object) this),
         previousTrackedStacks,
         previousCursorStack,
+        extraItemsForPrevious,
         player);
   }
 }
