@@ -55,7 +55,7 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     returnedItemsFromScreenClose.add(stack);
   }
 
-  @Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;transferSlot", ordinal = 0))
+  @Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.transferSlot(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;", ordinal = 0))
   public void beforeFirstTransferSlot(
       int slotIndex,
       int button,
@@ -65,7 +65,7 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     pauseNotifications = true;
   }
 
-  @Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;transferSlot"))
+  @Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.transferSlot(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"))
   public ItemStack wrapTransferSlot(
       ScreenHandler self,
       PlayerEntity player,
