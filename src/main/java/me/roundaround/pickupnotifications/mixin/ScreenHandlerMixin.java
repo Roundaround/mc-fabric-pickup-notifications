@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
