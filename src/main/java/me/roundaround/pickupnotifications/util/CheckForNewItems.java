@@ -40,8 +40,8 @@ public abstract class CheckForNewItems {
         continue;
       }
 
-      previous.add(prevStack);
-      current.add(currStack);
+      previous.add(prevStack.copy());
+      current.add(currStack.copy());
 
       if (inventory instanceof PlayerInventory && !currStack.isEmpty()) {
         playerSlotsWithChanges.add(i);
@@ -57,7 +57,7 @@ public abstract class CheckForNewItems {
     }
 
     if (!screenHandler.getCursorStack().isEmpty()) {
-      current.add(screenHandler.getCursorStack());
+      current.add(screenHandler.getCursorStack().copy());
     }
 
     if (!extraItemsForPrevious.isEmpty()) {
@@ -82,10 +82,10 @@ public abstract class CheckForNewItems {
 
   private static boolean areItemStacksEqualIgnoreDamage(ItemStack a, ItemStack b) {
     ItemStack aCopy = a.copy();
-    a.setDamage(0);
+    aCopy.setDamage(0);
 
     ItemStack bCopy = b.copy();
-    b.setDamage(0);
+    bCopy.setDamage(0);
 
     return ItemStack.areEqual(aCopy, bCopy);
   }

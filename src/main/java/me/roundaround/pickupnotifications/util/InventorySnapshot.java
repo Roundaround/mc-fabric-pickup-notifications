@@ -37,7 +37,7 @@ public class InventorySnapshot implements Iterable<ItemStack> {
 
   public void addAll(Iterable<ItemStack> stacks) {
     for (ItemStack stack : stacks) {
-      add(stack);
+      add(stack.copy());
     }
   }
 
