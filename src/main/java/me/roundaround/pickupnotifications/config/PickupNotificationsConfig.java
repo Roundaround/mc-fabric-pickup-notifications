@@ -2,9 +2,6 @@ package me.roundaround.pickupnotifications.config;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.roundalib.config.ModConfig;
-import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry;
-import me.roundaround.roundalib.config.gui.control.OptionListControl;
-import me.roundaround.roundalib.config.gui.control.ControlFactoryRegistry.RegistrationException;
 import me.roundaround.roundalib.config.option.BooleanConfigOption;
 import me.roundaround.roundalib.config.option.IntConfigOption;
 import me.roundaround.roundalib.config.option.OptionListConfigOption;
@@ -22,12 +19,6 @@ public class PickupNotificationsConfig extends ModConfig {
 
   public PickupNotificationsConfig() {
     super(PickupNotificationsMod.MOD_ID);
-
-    try {
-      ControlFactoryRegistry.registerOptionList(IconAlignment.class, OptionListControl::new);
-    } catch (RegistrationException e) {
-      // Deal with this later xD
-    }
 
     MOD_ENABLED = registerConfigOption(
         BooleanConfigOption

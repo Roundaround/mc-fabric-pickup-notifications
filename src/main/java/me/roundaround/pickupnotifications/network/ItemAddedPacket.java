@@ -24,6 +24,7 @@ public class ItemAddedPacket {
   }
 
   public static void sendToPlayer(ServerPlayerEntity player, ItemStack itemStack) {
+    PickupNotificationsMod.LOGGER.debug(String.format("Pickup notification packet sent: %s", itemStack));
     PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
     buf.writeItemStack(itemStack);
     ServerPlayNetworking.send(player, ITEM_ADDED_PACKET, buf);

@@ -71,13 +71,21 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
       int slotIndex) {
     ItemStack result = self.transferSlot(player, slotIndex);
 
-    if (result.isEmpty()) {
-      pauseNotifications = false;
-    } else {
+    if (!result.isEmpty()) {
       quickCraftItems.add(result.copy());
     }
 
     return result;
+  }
+
+  @Inject(method = "internalOnSlotClick", at = @At(value = "TAIL"))
+  public void internalOnSlotClick(
+      int slotIndex,
+      int button,
+      SlotActionType actionType,
+      PlayerEntity player,
+      CallbackInfo info) {
+    pauseNotifications = false;
   }
 
   @Inject(method = "dropInventory", at = @At(value = "HEAD"))

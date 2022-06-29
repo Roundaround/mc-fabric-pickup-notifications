@@ -18,13 +18,15 @@ import net.minecraft.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
 public class PickupNotificationsHud extends DrawableHelper {
+  private static final PickupNotificationsHud INSTANCE = new PickupNotificationsHud();
+
   private final Queue<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS = Queues.newArrayDeque();
   private final Queue<PickupNotificationLine> NOTIFICATION_QUEUE = Queues.newArrayDeque();
 
-  public void init() {
-    ClientTickEvents.END_CLIENT_TICK.register(this::tick);
-    HudRenderCallback.EVENT.register(this::render);
-    ItemPickupCallback.EVENT.register(this::handleItemPickedUp);
+  public static void init() {
+    ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
+    HudRenderCallback.EVENT.register(INSTANCE::render);
+    ItemPickupCallback.EVENT.register(INSTANCE::handleItemPickedUp);
   }
 
   private void tick(final MinecraftClient client) {
