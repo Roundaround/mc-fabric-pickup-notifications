@@ -12,8 +12,6 @@ import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
 import me.roundaround.pickupnotifications.util.InventorySnapshot;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -86,32 +84,6 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
       PlayerEntity player,
       CallbackInfo info) {
     pauseNotifications = false;
-  }
-
-  @Inject(method = "dropInventory", at = @At(value = "HEAD"))
-  public void dropInventory(PlayerEntity player, Inventory inventory, CallbackInfo info) {
-    if (!(player instanceof ServerPlayerEntity)) {
-      return;
-    }
-
-    if (!player.isAlive() || ((ServerPlayerEntity) player).isDisconnected()) {
-      return;
-    }
-
-    if (inventory instanceof PlayerInventory) {
-      return;
-    }
-
-    if (!(player.playerScreenHandler instanceof CanRegisterScreenCloseItems)) {
-      return;
-    }
-
-    for (int i = 0; i < inventory.size(); i++) {
-      // Register under the playerScreenHandler since currentScreenHandler is
-      // closing - the diff checking will happen there.
-      ((CanRegisterScreenCloseItems) player.playerScreenHandler)
-          .registerScreenCloseReturns(inventory.getStack(i).copy());
-    }
   }
 
   @Inject(method = "sendContentUpdates", at = @At(value = "HEAD"))
