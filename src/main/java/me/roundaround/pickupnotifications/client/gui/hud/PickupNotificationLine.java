@@ -1,13 +1,26 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.config.IconAlignment;
+import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
+import me.roundaround.roundalib.config.gui.GuiUtil;
 import me.roundaround.roundalib.config.value.GuiAlignment;
+import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
@@ -26,6 +39,8 @@ public class PickupNotificationLine extends DrawableHelper {
   public static final int LEFT_PADDING = 1;
 
   private final ItemStack itemStack;
+  private final PickupNotificationsConfig config;
+  private final boolean timeless;
   private final MinecraftClient minecraft;
   private int originalTimeRemaining;
   private int timeRemaining;
@@ -33,7 +48,13 @@ public class PickupNotificationLine extends DrawableHelper {
   private long lastTick;
 
   public PickupNotificationLine(ItemStack initialItems) {
+    this(initialItems, PickupNotificationsMod.CONFIG, false);
+  }
+
+  public PickupNotificationLine(ItemStack initialItems, PickupNotificationsConfig config, boolean timeless) {
     itemStack = initialItems.copy();
+    this.config = config;
+    this.timeless = timeless;
     minecraft = MinecraftClient.getInstance();
     originalTimeRemaining = SHOW_DURATION;
     timeRemaining = SHOW_DURATION;
@@ -47,11 +68,12 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   public void render(MatrixStack matrixStack, int idx) {
-    GuiAlignment alignment = PickupNotificationsMod.CONFIG.GUI_ALIGNMENT.getValue();
-    int x = alignment.getPosX() +
-        PickupNotificationsMod.CONFIG.GUI_OFFSET_X.getValue() * alignment.getOffsetMultiplierX();
-    int y = alignment.getPosY() +
-        PickupNotificationsMod.CONFIG.GUI_OFFSET_Y.getValue() * alignment.getOffsetMultiplierY();
+    GuiAlignment alignment = config.GUI_ALIGNMENT.getValue();
+    Position offset = config.GUI_OFFSET.getValue();
+    float scale = config.GUI_SCALE.getValue();
+
+    float x = alignment.getPosX() + offset.x() * alignment.getOffsetMultiplierX();
+    float y = alignment.getPosY() + offset.y() * alignment.getOffsetMultiplierY();
 
     MutableText text = getFormattedDisplayString();
     TextRenderer textRenderer = minecraft.textRenderer;
@@ -60,53 +82,73 @@ public class PickupNotificationLine extends DrawableHelper {
     int textWidth = textRenderer.getWidth(text);
     int fullWidth = 3 * LEFT_PADDING + textWidth + spriteSize;
 
+    float xAdjust = 0f;
+    float yAdjust = 0f;
+
     if (alignment.getAlignmentX() == GuiAlignment.AlignmentX.RIGHT) {
-      x -= fullWidth;
+      xAdjust = -fullWidth;
     }
 
     if (alignment.getAlignmentY() == GuiAlignment.AlignmentY.BOTTOM) {
-      y -= textRenderer.fontHeight + 2;
+      yAdjust = -textRenderer.fontHeight - 2;
     }
 
-    x -= fullWidth * getXOffsetPercent() * alignment.getOffsetMultiplierX();
-    y += idx * (textRenderer.fontHeight + 2) * alignment.getOffsetMultiplierY();
+    xAdjust -= fullWidth * getXOffsetPercent() * alignment.getOffsetMultiplierX();
+    yAdjust += idx * (textRenderer.fontHeight + 2) * alignment.getOffsetMultiplierY();
+
+    x += xAdjust * scale;
+    y += yAdjust * scale;
 
     renderBackgroundAndText(matrixStack, idx, x, y, fullWidth);
-    renderItem(idx, x, y, fullWidth);
+    renderItem(matrixStack, idx, x, y, fullWidth);
   }
 
-  private void renderBackgroundAndText(MatrixStack matrixStack, int idx, float x, float y, int width) {
-    boolean guiRight = PickupNotificationsMod.CONFIG.GUI_ALIGNMENT
+  private void renderBackgroundAndText(
+      MatrixStack matrixStack,
+      int idx,
+      float x,
+      float y,
+      int width) {
+    boolean guiRight = config.GUI_ALIGNMENT
         .getValue()
         .getAlignmentX()
         .equals(GuiAlignment.AlignmentX.RIGHT);
-    IconAlignment iconAlignment = PickupNotificationsMod.CONFIG.ICON_ALIGNMENT.getValue();
+    IconAlignment iconAlignment = config.ICON_ALIGNMENT.getValue();
     boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT)
         || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
+    float scale = config.GUI_SCALE.getValue();
 
     MutableText text = getFormattedDisplayString();
     TextRenderer textRenderer = minecraft.textRenderer;
-
-    float textOpacity = minecraft.options.getChtOpacity().getValue().floatValue() * 0.9f + 0.1f;
-    float backgroundOpacity = (float) minecraft.options.getTextBackgroundOpacity(0.5f);
 
     int height = textRenderer.fontHeight + 1;
     int spriteSize = height;
     int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + spriteSize;
 
     matrixStack.push();
-    matrixStack.scale(1, 1, 1);
-    matrixStack.translate(x, y, 800 + idx);
+    matrixStack.translate(
+        x,
+        y,
+        800 + idx);
+    matrixStack.scale(
+        scale,
+        scale,
+        1);
 
-    if (PickupNotificationsMod.CONFIG.RENDER_BACKGROUND.getValue()) {
-      fill(matrixStack, -1, -1, width, height, genColorInt(0, 0, 0, backgroundOpacity));
+    if (config.RENDER_BACKGROUND.getValue()) {
+      fill(matrixStack, -1, -1, width, height,
+          genColorInt(0, 0, 0, config.BACKGROUND_OPACITY.getValue()));
     }
 
     {
       matrixStack.push();
-      matrixStack.translate(leftPad, 0.5f, 0);
+      matrixStack.translate(leftPad, 0, 0);
       RenderSystem.enableBlend();
-      textRenderer.draw(matrixStack, text, 0, 0, genColorInt(1, 1, 1, textOpacity));
+      if (config.RENDER_SHADOW.getValue()) {
+        textRenderer.drawWithShadow(matrixStack, text, 0, 1, GuiUtil.LABEL_COLOR);
+      } else {
+        textRenderer.draw(matrixStack, text, 0, 1, GuiUtil.LABEL_COLOR);
+      }
       RenderSystem.disableBlend();
       matrixStack.pop();
     }
@@ -114,46 +156,90 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.pop();
   }
 
-  private void renderItem(int idx, float x, float y, int width) {
-    boolean guiRight = PickupNotificationsMod.CONFIG.GUI_ALIGNMENT
+  private void renderItem(
+      MatrixStack matrixStack,
+      int idx,
+      float x,
+      float y,
+      int width) {
+    float scale = config.GUI_SCALE.getValue();
+
+    matrixStack.push();
+    matrixStack.translate(
+        x,
+        y,
+        900 + idx);
+    matrixStack.scale(
+        scale,
+        scale,
+        1);
+
+    boolean guiRight = config.GUI_ALIGNMENT
         .getValue()
         .getAlignmentX()
         .equals(GuiAlignment.AlignmentX.RIGHT);
-    IconAlignment iconAlignment = PickupNotificationsMod.CONFIG.ICON_ALIGNMENT.getValue();
+    IconAlignment iconAlignment = config.ICON_ALIGNMENT.getValue();
     boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT)
         || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
 
     TextRenderer textRenderer = minecraft.textRenderer;
 
     int spriteSize = textRenderer.fontHeight + 1;
-    float spriteScale = (float) spriteSize / SPRITE_RAW_SIZE;
-
     long renderTime = Util.getMeasuringTimeMs();
 
     // 50ms per tick
     float partialTick = MathHelper.clamp((renderTime - lastTick) / 50f, 0, 1);
     float partialPopTimeRemaining = popTimeRemaining - partialTick;
 
+    float xPos = rightAligned
+        ? width - spriteSize / 2f - LEFT_PADDING - 0.5f
+        : spriteSize / 2f + LEFT_PADDING - 0.5f;
+    float yPos = spriteSize / 2f - 0.5f;
+
+    matrixStack.push();
+    matrixStack.translate(xPos, yPos, 0);
+    matrixStack.scale(spriteSize, -spriteSize, 1);
+
     float popScale = 1f + MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
-    int xPos = Math.round(rightAligned ? x + width - spriteSize - LEFT_PADDING + 1 : x + LEFT_PADDING - 1);
-    int yPos = Math.round(y - 0.75f);
 
+    matrixStack.push();
+    matrixStack.scale(1f / popScale, (1f + popScale) / 2f, 1);
+
+    ItemRenderer itemRenderer = minecraft.getItemRenderer();
+    TextureManager textureManager = minecraft.getTextureManager();
+
+    BakedModel model = itemRenderer.getModel(itemStack, null, minecraft.player, 0);
+    textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
+    RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+    RenderSystem.enableBlend();
+    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+    RenderSystem.setShaderColor(1, 1, 1, 1);
+    VertexConsumerProvider.Immediate immediate = minecraft.getBufferBuilders().getEntityVertexConsumers();
+
+    boolean isNotLit = !model.isSideLit();
+    if (isNotLit) {
+      DiffuseLighting.disableGuiDepthLighting();
+    }
+
+    itemRenderer.renderItem(
+        itemStack,
+        ModelTransformation.Mode.GUI,
+        false,
+        matrixStack,
+        immediate,
+        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+        OverlayTexture.DEFAULT_UV,
+        model);
+    immediate.draw();
+
+    matrixStack.pop();
+    matrixStack.pop();
+    matrixStack.pop();
+
+    if (isNotLit) {
+      DiffuseLighting.enableGuiDepthLighting();
+    }
     RenderSystem.enableDepthTest();
-    MatrixStack matrixStack = RenderSystem.getModelViewStack();
-    matrixStack.push();
-    matrixStack.translate(0, 0, 801 + idx);
-
-    matrixStack.push();
-    matrixStack.translate(xPos + 8 * spriteScale, yPos + 12 * spriteScale, 0);
-    matrixStack.scale(spriteScale / popScale, spriteScale * (1f + popScale) / 2f, 1);
-    matrixStack.translate(-(xPos + 8 * spriteScale), -(yPos + 12 * spriteScale), 0);
-
-    RenderSystem.applyModelViewMatrix();
-    minecraft.getItemRenderer().renderInGuiWithOverrides(itemStack, xPos - 4, yPos - 4);
-
-    matrixStack.pop();
-    matrixStack.pop();
-    RenderSystem.applyModelViewMatrix();
   }
 
   public void pop() {
@@ -180,7 +266,7 @@ public class PickupNotificationLine extends DrawableHelper {
 
   private MutableText getFormattedDisplayString() {
     MutableText name = Text.empty().append(itemStack.getName());
-    if (PickupNotificationsMod.CONFIG.SHOW_UNIQUE_INFO.getValue()) {
+    if (config.SHOW_UNIQUE_INFO.getValue()) {
       name.formatted(itemStack.getRarity().formatting);
       if (itemStack.hasCustomName()) {
         name.formatted(Formatting.ITALIC);
@@ -190,6 +276,10 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private float getXOffsetPercent() {
+    if (timeless) {
+      return 0f;
+    }
+
     long renderTime = Util.getMeasuringTimeMs();
 
     // 50ms per tick

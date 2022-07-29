@@ -4,6 +4,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Queues;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
