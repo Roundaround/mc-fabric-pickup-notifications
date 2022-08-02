@@ -30,6 +30,6 @@
     "fabric": "*",
     "minecraft": "1.19.x",
     "java": ">=17",
-    "roundalib": ">=0.1.8"
+    "roundalib": "~0.2.0"
   }
 }

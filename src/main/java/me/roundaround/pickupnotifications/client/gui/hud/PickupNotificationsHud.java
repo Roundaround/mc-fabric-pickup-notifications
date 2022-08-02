@@ -1,10 +1,8 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Queues;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
@@ -21,8 +19,8 @@ import net.minecraft.item.ItemStack;
 public class PickupNotificationsHud extends DrawableHelper {
   private static final PickupNotificationsHud INSTANCE = new PickupNotificationsHud();
 
-  private final Queue<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS = Queues.newArrayDeque();
-  private final Queue<PickupNotificationLine> NOTIFICATION_QUEUE = Queues.newArrayDeque();
+  private final Queue<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS = new ArrayDeque<>();
+  private final Queue<PickupNotificationLine> NOTIFICATION_QUEUE = new ArrayDeque<>();
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
