@@ -157,12 +157,14 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private void renderItem(
-      MatrixStack matrixStack,
+      MatrixStack matrixStack0,
       int idx,
       float x,
       float y,
       int width) {
     float scale = config.GUI_SCALE.getValue();
+    
+    MatrixStack matrixStack = RenderSystem.getModelViewStack();
 
     matrixStack.push();
     matrixStack.translate(
@@ -214,6 +216,9 @@ public class PickupNotificationLine extends DrawableHelper {
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.setShaderColor(1, 1, 1, 1);
+
+    RenderSystem.applyModelViewMatrix();
+    MatrixStack matrixStack2 = new MatrixStack();
     VertexConsumerProvider.Immediate immediate = minecraft.getBufferBuilders().getEntityVertexConsumers();
 
     boolean isNotLit = !model.isSideLit();
@@ -225,7 +230,7 @@ public class PickupNotificationLine extends DrawableHelper {
         itemStack,
         ModelTransformation.Mode.GUI,
         false,
-        matrixStack,
+        matrixStack2,
         immediate,
         LightmapTextureManager.MAX_LIGHT_COORDINATE,
         OverlayTexture.DEFAULT_UV,
@@ -235,6 +240,8 @@ public class PickupNotificationLine extends DrawableHelper {
     matrixStack.pop();
     matrixStack.pop();
     matrixStack.pop();
+
+    RenderSystem.applyModelViewMatrix();
 
     if (isNotLit) {
       DiffuseLighting.enableGuiDepthLighting();
