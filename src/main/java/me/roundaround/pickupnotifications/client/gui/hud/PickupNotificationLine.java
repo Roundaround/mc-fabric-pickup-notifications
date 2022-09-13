@@ -100,7 +100,7 @@ public class PickupNotificationLine extends DrawableHelper {
     y += yAdjust * scale;
 
     renderBackgroundAndText(matrixStack, idx, x, y, fullWidth);
-    renderItem(matrixStack, idx, x, y, fullWidth);
+    renderItem(idx, x, y, fullWidth);
   }
 
   private void renderBackgroundAndText(
@@ -157,13 +157,11 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private void renderItem(
-      MatrixStack matrixStack0,
       int idx,
       float x,
       float y,
       int width) {
     float scale = config.GUI_SCALE.getValue();
-    
     MatrixStack matrixStack = RenderSystem.getModelViewStack();
 
     matrixStack.push();
