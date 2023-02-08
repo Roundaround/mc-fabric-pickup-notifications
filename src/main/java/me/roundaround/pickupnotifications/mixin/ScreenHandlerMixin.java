@@ -37,10 +37,10 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
   ItemStack previousCursorStack;
 
   @Shadow
-  abstract Slot getSlot(int index);
+  public abstract Slot getSlot(int index);
 
   @Shadow
-  abstract ItemStack getCursorStack();
+  public abstract ItemStack getCursorStack();
 
   @Override
   public void setPlayer(ServerPlayerEntity player) {
@@ -52,7 +52,7 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     returnedItemsFromScreenClose.add(stack);
   }
 
-  @Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.transferSlot(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;", ordinal = 0))
+  @Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;", ordinal = 0))
   public void beforeFirstTransferSlot(
       int slotIndex,
       int button,
@@ -62,12 +62,12 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     pauseNotifications = true;
   }
 
-  @Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.transferSlot(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"))
+  @Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"))
   public ItemStack wrapTransferSlot(
       ScreenHandler self,
       PlayerEntity player,
       int slotIndex) {
-    ItemStack result = self.transferSlot(player, slotIndex);
+    ItemStack result = self.quickMove(player, slotIndex);
 
     if (!result.isEmpty()) {
       quickCraftItems.add(result.copy());

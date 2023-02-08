@@ -29,11 +29,8 @@ dependencies {
   modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
   modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-  // Test using real account
-  modImplementation "com.ptsmods:devlogin:${project.dev_login_version}"
-
   // Compat with Inventory Management
-  modCompileOnly "me.roundaround:inventorymanagement:${project.inventory_management_version}"
+  // modCompileOnly "me.roundaround:inventorymanagement:${project.inventory_management_version}"
 
   // ModMenu integration
   modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
