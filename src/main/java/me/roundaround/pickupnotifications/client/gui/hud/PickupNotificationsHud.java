@@ -78,7 +78,8 @@ public class PickupNotificationsHud extends DrawableHelper {
     }
 
     for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
-      if (mergedIntoExisting = notification.attemptAdd(pickedUp)) {
+      if (notification.attemptAdd(pickedUp)) {
+        mergedIntoExisting = true;
         notification.pop();
         break;
       }
@@ -86,7 +87,8 @@ public class PickupNotificationsHud extends DrawableHelper {
 
     if (!mergedIntoExisting) {
       for (PickupNotificationLine notification : NOTIFICATION_QUEUE) {
-        if (mergedIntoExisting = notification.attemptAdd(pickedUp)) {
+        if (notification.attemptAdd(pickedUp)) {
+          mergedIntoExisting = true;
           break;
         }
       }

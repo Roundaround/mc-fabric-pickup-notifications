@@ -3,13 +3,14 @@
   "id": "pickupnotifications",
   "version": "${version}",
   "name": "Pickup Notifications",
-  "description": "Show notifications on item pickup.",
+  "description": "Show notifications on item pickup.\n${library}",
   "authors": [
     "Roundaround"
   ],
   "contact": {
-    "homepage": "",
-    "sources": ""
+    "homepage": "https://modrinth.com/mod/pickup-notifications",
+    "sources": "https://github.com/Roundaround/mc-fabric-pickup-notifications",
+    "issues": "https://github.com/Roundaround/mc-fabric-pickup-notifications/issues"
   },
   "license": "MIT",
   "icon": "assets/pickupnotifications/icon.png",
@@ -26,10 +27,9 @@
     "pickupnotifications.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.13.3",
+    "fabricloader": "*",
     "fabric": "*",
     "minecraft": "1.19.x",
-    "java": ">=17",
-    "roundalib": "~0.2.0"
+    "java": ">=17"
   }
 }

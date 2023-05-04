@@ -1,8 +1,9 @@
 package me.roundaround.pickupnotifications.config;
 
-import java.util.Arrays;
-
+import me.roundaround.roundalib.config.ModConfig;
 import me.roundaround.roundalib.config.value.ListOptionValue;
+
+import java.util.Arrays;
 
 public enum IconAlignment implements ListOptionValue<IconAlignment> {
   OUTSIDE("outside"),
@@ -22,7 +23,7 @@ public enum IconAlignment implements ListOptionValue<IconAlignment> {
   }
 
   @Override
-  public String getI18nKey() {
+  public String getI18nKey(ModConfig config) {
     return "pickupnotifications.icon_alignment." + this.id;
   }
 

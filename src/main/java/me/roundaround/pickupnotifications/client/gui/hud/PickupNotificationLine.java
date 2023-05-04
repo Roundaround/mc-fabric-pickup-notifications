@@ -2,11 +2,10 @@ package me.roundaround.pickupnotifications.client.gui.hud;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import me.roundaround.roundalib.config.gui.GuiUtil;
+import me.roundaround.roundalib.client.gui.GuiUtil;
 import me.roundaround.roundalib.config.value.GuiAlignment;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
@@ -18,7 +17,7 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -51,7 +50,8 @@ public class PickupNotificationLine extends DrawableHelper {
     this(initialItems, PickupNotificationsMod.CONFIG, false);
   }
 
-  public PickupNotificationLine(ItemStack initialItems, PickupNotificationsConfig config, boolean timeless) {
+  public PickupNotificationLine(
+      ItemStack initialItems, PickupNotificationsConfig config, boolean timeless) {
     itemStack = initialItems.copy();
     this.config = config;
     this.timeless = timeless;
@@ -104,18 +104,12 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private void renderBackgroundAndText(
-      MatrixStack matrixStack,
-      int idx,
-      float x,
-      float y,
-      int width) {
-    boolean guiRight = config.GUI_ALIGNMENT
-        .getValue()
-        .getAlignmentX()
-        .equals(GuiAlignment.AlignmentX.RIGHT);
+      MatrixStack matrixStack, int idx, float x, float y, int width) {
+    boolean guiRight =
+        config.GUI_ALIGNMENT.getValue().getAlignmentX().equals(GuiAlignment.AlignmentX.RIGHT);
     IconAlignment iconAlignment = config.ICON_ALIGNMENT.getValue();
-    boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT)
-        || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
+    boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT) ||
+        guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
     float scale = config.GUI_SCALE.getValue();
 
     MutableText text = getFormattedDisplayString();
@@ -126,18 +120,16 @@ public class PickupNotificationLine extends DrawableHelper {
     int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + spriteSize;
 
     matrixStack.push();
-    matrixStack.translate(
-        x,
-        y,
-        800 + idx);
-    matrixStack.scale(
-        scale,
-        scale,
-        1);
+    matrixStack.translate(x, y, 800 + idx);
+    matrixStack.scale(scale, scale, 1);
 
     if (config.RENDER_BACKGROUND.getValue()) {
-      fill(matrixStack, -1, -1, width, height,
-          genColorInt(0, 0, 0, config.BACKGROUND_OPACITY.getValue()));
+      fill(matrixStack,
+          -1,
+          -1,
+          width,
+          height,
+          GuiUtil.genColorInt(0, 0, 0, config.BACKGROUND_OPACITY.getValue()));
     }
 
     {
@@ -157,30 +149,19 @@ public class PickupNotificationLine extends DrawableHelper {
   }
 
   private void renderItem(
-      int idx,
-      float x,
-      float y,
-      int width) {
+      int idx, float x, float y, int width) {
     float scale = config.GUI_SCALE.getValue();
     MatrixStack matrixStack = RenderSystem.getModelViewStack();
 
     matrixStack.push();
-    matrixStack.translate(
-        x,
-        y,
-        900 + idx);
-    matrixStack.scale(
-        scale,
-        scale,
-        1);
+    matrixStack.translate(x, y, 900 + idx);
+    matrixStack.scale(scale, scale, 1);
 
-    boolean guiRight = config.GUI_ALIGNMENT
-        .getValue()
-        .getAlignmentX()
-        .equals(GuiAlignment.AlignmentX.RIGHT);
+    boolean guiRight =
+        config.GUI_ALIGNMENT.getValue().getAlignmentX().equals(GuiAlignment.AlignmentX.RIGHT);
     IconAlignment iconAlignment = config.ICON_ALIGNMENT.getValue();
-    boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT)
-        || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
+    boolean rightAligned = iconAlignment.equals(IconAlignment.RIGHT) ||
+        guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
 
     TextRenderer textRenderer = minecraft.textRenderer;
 
@@ -212,21 +193,22 @@ public class PickupNotificationLine extends DrawableHelper {
     textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
     RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
     RenderSystem.enableBlend();
-    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA,
+        GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
     RenderSystem.setShaderColor(1, 1, 1, 1);
 
     RenderSystem.applyModelViewMatrix();
     MatrixStack matrixStack2 = new MatrixStack();
-    VertexConsumerProvider.Immediate immediate = minecraft.getBufferBuilders().getEntityVertexConsumers();
+    VertexConsumerProvider.Immediate immediate =
+        minecraft.getBufferBuilders().getEntityVertexConsumers();
 
     boolean isNotLit = !model.isSideLit();
     if (isNotLit) {
       DiffuseLighting.disableGuiDepthLighting();
     }
 
-    itemRenderer.renderItem(
-        itemStack,
-        ModelTransformation.Mode.GUI,
+    itemRenderer.renderItem(itemStack,
+        ModelTransformationMode.GUI,
         false,
         matrixStack2,
         immediate,
@@ -305,10 +287,6 @@ public class PickupNotificationLine extends DrawableHelper {
       // Fully showing
       return 0f;
     }
-  }
-
-  private static int genColorInt(float r, float g, float b, float a) {
-    return ((int) (a * 255) << 24) | ((int) (r * 255) << 16) | ((int) (g * 255) << 8) | (int) (b * 255);
   }
 
   private static boolean areItemStacksMergeable(ItemStack a, ItemStack b) {
