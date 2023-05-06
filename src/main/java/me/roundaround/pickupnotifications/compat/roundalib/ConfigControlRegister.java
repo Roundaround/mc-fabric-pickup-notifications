@@ -8,6 +8,7 @@ import me.roundaround.roundalib.client.gui.widget.config.ControlRegistry;
 import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
 import me.roundaround.roundalib.config.option.PositionConfigOption;
 import me.roundaround.roundalib.config.value.Position;
+import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
@@ -30,12 +31,14 @@ public class ConfigControlRegister {
     SubScreenControl<Position, PositionConfigOption> control =
         new SubScreenControl<>(parent, GuiOffsetPositionEditScreen.getSubScreenFactory());
 
-    ((ButtonWidget) control.children().get(0)).setMessage(Text.literal(parent.getOption()
+    final AbstractParentElement asParentElement = control;
+
+    ((ButtonWidget) asParentElement.children().get(0)).setMessage(Text.literal(parent.getOption()
         .getValue()
         .toString()));
 
     parent.getOption().subscribeToValueChanges((prev, curr) -> {
-      ((ButtonWidget) control.children().get(0)).setMessage(Text.literal(curr.toString()));
+      ((ButtonWidget) asParentElement.children().get(0)).setMessage(Text.literal(curr.toString()));
     });
 
     return control;
