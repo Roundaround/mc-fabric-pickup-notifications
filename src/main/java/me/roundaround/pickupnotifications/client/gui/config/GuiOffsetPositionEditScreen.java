@@ -31,26 +31,30 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
   protected void init() {
     super.init();
 
-    config.GUI_OFFSET.setValue(getValue());
+    this.config.GUI_OFFSET.setValue(getValue());
 
-    notifications.clear();
-    notifications.add(new PickupNotificationLine(new ItemStack(Items.DIAMOND, 64), config, true));
-    notifications.add(new PickupNotificationLine(new ItemStack(Items.GOLDEN_APPLE, 16),
-        config,
+    this.notifications.clear();
+    this.notifications.add(new PickupNotificationLine(new ItemStack(Items.DIAMOND, 64),
+        this.config,
         true));
-    notifications.add(new PickupNotificationLine(new ItemStack(Items.ELYTRA), config, true));
+    this.notifications.add(new PickupNotificationLine(new ItemStack(Items.GOLDEN_APPLE, 16),
+        this.config,
+        true));
+    this.notifications.add(new PickupNotificationLine(new ItemStack(Items.ELYTRA),
+        this.config,
+        true));
   }
 
   @Override
   protected void setValue(Position value) {
     super.setValue(value);
-    config.GUI_OFFSET.setValue(getValue());
+    this.config.GUI_OFFSET.setValue(this.getValue());
   }
 
   @Override
   protected void renderBackground(
       MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-    renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
+    this.renderTextureBackground(matrixStack, mouseX, mouseY, partialTicks);
   }
 
   @Override
@@ -59,14 +63,14 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
     super.renderContent(matrixStack, mouseX, mouseY, partialTicks);
 
     drawCenteredTextWithShadow(matrixStack,
-        textRenderer,
-        Text.literal(getValue().toString()).asOrderedText(),
-        width / 2,
-        height / 2,
+        this.textRenderer,
+        Text.literal(this.getValue().toString()).asOrderedText(),
+        this.width / 2,
+        this.height / 2,
         GuiUtil.LABEL_COLOR);
 
     int i = 0;
-    for (PickupNotificationLine notification : notifications) {
+    for (PickupNotificationLine notification : this.notifications) {
       notification.render(matrixStack, i++);
     }
   }
