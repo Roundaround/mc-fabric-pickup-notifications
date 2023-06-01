@@ -1,7 +1,5 @@
 package me.roundaround.pickupnotifications.util;
 
-import java.util.HashSet;
-
 import me.roundaround.pickupnotifications.network.ItemAddedPacket;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingResultInventory;
@@ -10,6 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
+
+import java.util.HashSet;
 
 public abstract class CheckForNewItems {
   public static void run(

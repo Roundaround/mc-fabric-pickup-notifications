@@ -1,17 +1,16 @@
 package me.roundaround.pickupnotifications.mixin;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerInventory.class)
 public abstract class PlayerInventoryMixin {
@@ -24,7 +23,7 @@ public abstract class PlayerInventoryMixin {
       return;
     }
 
-    ScreenHandler screenHandler = ((ServerPlayerEntity) player).playerScreenHandler;
+    ScreenHandler screenHandler = player.playerScreenHandler;
 
     if (!(screenHandler instanceof CanRegisterScreenCloseItems)) {
       return;

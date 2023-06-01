@@ -10,7 +10,7 @@ import me.roundaround.roundalib.config.value.GuiAlignment;
 import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
@@ -18,17 +18,17 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
-public class PickupNotificationLine extends DrawableHelper {
+public class PickupNotificationLine {
   public static final int SHOW_DURATION = 120;
   public static final int DURATION_INCREASE_ON_ADD = 60;
   public static final int POP_DURATION = 5;
@@ -67,7 +67,7 @@ public class PickupNotificationLine extends DrawableHelper {
     lastTick = Util.getMeasuringTimeMs();
   }
 
-  public void render(MatrixStack matrixStack, int idx) {
+  public void render(DrawContext drawContext, int idx) {
     GuiAlignment alignment = config.GUI_ALIGNMENT.getValue();
     Position offset = config.GUI_OFFSET.getValue();
     float scale = config.GUI_SCALE.getValue();
@@ -99,12 +99,12 @@ public class PickupNotificationLine extends DrawableHelper {
     x += xAdjust * scale;
     y += yAdjust * scale;
 
-    renderBackgroundAndText(matrixStack, idx, x, y, fullWidth);
+    renderBackgroundAndText(drawContext, idx, x, y, fullWidth);
     renderItem(idx, x, y, fullWidth);
   }
 
   private void renderBackgroundAndText(
-      MatrixStack matrixStack, int idx, float x, float y, int width) {
+      DrawContext drawContext, int idx, float x, float y, int width) {
     boolean guiRight =
         config.GUI_ALIGNMENT.getValue().getAlignmentX().equals(GuiAlignment.AlignmentX.RIGHT);
     IconAlignment iconAlignment = config.ICON_ALIGNMENT.getValue();
@@ -119,13 +119,13 @@ public class PickupNotificationLine extends DrawableHelper {
     int spriteSize = height;
     int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + spriteSize;
 
+    MatrixStack matrixStack = drawContext.getMatrices();
     matrixStack.push();
     matrixStack.translate(x, y, 800 + idx);
     matrixStack.scale(scale, scale, 1);
 
     if (config.RENDER_BACKGROUND.getValue()) {
-      fill(matrixStack,
-          -1,
+      drawContext.fill(-1,
           -1,
           width,
           height,
@@ -136,11 +136,12 @@ public class PickupNotificationLine extends DrawableHelper {
       matrixStack.push();
       matrixStack.translate(leftPad, 0, 0);
       RenderSystem.enableBlend();
-      if (config.RENDER_SHADOW.getValue()) {
-        textRenderer.drawWithShadow(matrixStack, text, 0, 1, GuiUtil.LABEL_COLOR);
-      } else {
-        textRenderer.draw(matrixStack, text, 0, 1, GuiUtil.LABEL_COLOR);
-      }
+      drawContext.drawText(textRenderer,
+          text,
+          0,
+          1,
+          GuiUtil.LABEL_COLOR,
+          config.RENDER_SHADOW.getValue());
       RenderSystem.disableBlend();
       matrixStack.pop();
     }
@@ -190,8 +191,8 @@ public class PickupNotificationLine extends DrawableHelper {
     TextureManager textureManager = minecraft.getTextureManager();
 
     BakedModel model = itemRenderer.getModel(itemStack, null, minecraft.player, 0);
-    textureManager.getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
-    RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+    textureManager.getTexture(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
+    RenderSystem.setShaderTexture(0, PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA,
         GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);

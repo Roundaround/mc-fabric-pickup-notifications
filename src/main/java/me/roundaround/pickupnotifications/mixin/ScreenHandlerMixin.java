@@ -1,12 +1,5 @@
 package me.roundaround.pickupnotifications.mixin;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
@@ -18,23 +11,31 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegisterScreenCloseItems {
   private ServerPlayerEntity player;
   private boolean firstRun = true;
   private boolean pauseNotifications = false;
-  private InventorySnapshot quickCraftItems = new InventorySnapshot();
-  private InventorySnapshot returnedItemsFromScreenClose = new InventorySnapshot();
+  private final InventorySnapshot quickCraftItems = new InventorySnapshot();
+  private final InventorySnapshot returnedItemsFromScreenClose = new InventorySnapshot();
 
   @Shadow
-  boolean disableSync;
+  private boolean disableSync;
+
+  @Final
+  @Shadow
+  private DefaultedList<ItemStack> previousTrackedStacks;
 
   @Shadow
-  DefaultedList<ItemStack> previousTrackedStacks;
-
-  @Shadow
-  ItemStack previousCursorStack;
+  private ItemStack previousCursorStack;
 
   @Shadow
   public abstract Slot getSlot(int index);
@@ -52,7 +53,13 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     returnedItemsFromScreenClose.add(stack);
   }
 
-  @Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;", ordinal = 0))
+  @Inject(
+      method = "internalOnSlotClick", at = @At(
+      value = "INVOKE",
+      target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;",
+      ordinal = 0
+  )
+  )
   public void beforeFirstTransferSlot(
       int slotIndex,
       int button,
@@ -62,11 +69,14 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     pauseNotifications = true;
   }
 
-  @Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"))
+  @Redirect(
+      method = "internalOnSlotClick", at = @At(
+      value = "INVOKE",
+      target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"
+  )
+  )
   public ItemStack wrapTransferSlot(
-      ScreenHandler self,
-      PlayerEntity player,
-      int slotIndex) {
+      ScreenHandler self, PlayerEntity player, int slotIndex) {
     ItemStack result = self.quickMove(player, slotIndex);
 
     if (!result.isEmpty()) {
@@ -111,8 +121,7 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
       returnedItemsFromScreenClose.clear();
     }
 
-    CheckForNewItems.run(
-        ((ScreenHandler) (Object) this),
+    CheckForNewItems.run(((ScreenHandler) (Object) this),
         previousTrackedStacks,
         previousCursorStack,
         extraItemsForPrevious,
