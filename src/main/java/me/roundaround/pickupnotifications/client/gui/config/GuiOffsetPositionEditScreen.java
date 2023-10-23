@@ -52,7 +52,7 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
   }
 
   @Override
-  protected void renderBackground(
+  public void renderBackground(
       DrawContext drawContext, int mouseX, int mouseY, float partialTicks) {
     this.renderTextureBackground(drawContext, mouseX, mouseY, partialTicks);
   }

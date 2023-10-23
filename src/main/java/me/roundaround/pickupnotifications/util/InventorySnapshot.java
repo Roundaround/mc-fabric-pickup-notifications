@@ -127,7 +127,7 @@ public class InventorySnapshot implements Iterable<ItemStack> {
     return internal.values()
         .stream()
         .flatMap(Collection::stream)
-        .collect(Collectors.toList())
+        .toList()
         .iterator();
   }
 

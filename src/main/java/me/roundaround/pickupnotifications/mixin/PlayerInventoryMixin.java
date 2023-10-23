@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,8 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerInventory.class)
 public abstract class PlayerInventoryMixin {
+  @Final
   @Shadow
-  PlayerEntity player;
+  public PlayerEntity player;
 
   @Inject(method = "offerOrDrop", at = @At(value = "HEAD"))
   public void offerOrDrop(ItemStack stack, CallbackInfo info) {
