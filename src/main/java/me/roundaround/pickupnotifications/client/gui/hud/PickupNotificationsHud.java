@@ -10,15 +10,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Environment(EnvType.CLIENT)
 public class PickupNotificationsHud {
   private static final PickupNotificationsHud INSTANCE = new PickupNotificationsHud();
 
-  private final Queue<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS = new ArrayDeque<>();
-  private final Queue<PickupNotificationLine> NOTIFICATION_QUEUE = new ArrayDeque<>();
+  private final CopyOnWriteArrayList<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS =
+      new CopyOnWriteArrayList<>();
+  private final ConcurrentLinkedDeque<PickupNotificationLine> NOTIFICATION_QUEUE =
+      new ConcurrentLinkedDeque<>();
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
@@ -35,16 +37,23 @@ public class PickupNotificationsHud {
       return;
     }
 
-    CURRENTLY_SHOWN_NOTIFICATIONS.stream()
-        .peek(PickupNotificationLine::tick)
-        .filter(PickupNotificationLine::isExpired)
-        .toList()
-        .forEach(CURRENTLY_SHOWN_NOTIFICATIONS::remove);
+    for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
+      notification.tick();
+      if (notification.isExpired()) {
+        CURRENTLY_SHOWN_NOTIFICATIONS.remove(notification);
+      }
+    }
 
-    while (CURRENTLY_SHOWN_NOTIFICATIONS.size() <
-        PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue() &&
-        !NOTIFICATION_QUEUE.isEmpty()) {
-      CURRENTLY_SHOWN_NOTIFICATIONS.add(NOTIFICATION_QUEUE.poll());
+    while (hasRoomForNewNotification()) {
+      PickupNotificationLine notification = NOTIFICATION_QUEUE.poll();
+
+      // If NOTIFICATION_QUEUE is empty, notification will be null.
+      if (notification == null) {
+        break;
+      }
+
+      notification.pop();
+      CURRENTLY_SHOWN_NOTIFICATIONS.add(notification);
     }
   }
 
@@ -95,14 +104,17 @@ public class PickupNotificationsHud {
 
     if (!mergedIntoExisting) {
       PickupNotificationLine notification = new PickupNotificationLine(pickedUp);
-      if (CURRENTLY_SHOWN_NOTIFICATIONS.size() <
-          PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue() &&
-          NOTIFICATION_QUEUE.isEmpty()) {
+      if (NOTIFICATION_QUEUE.isEmpty() && hasRoomForNewNotification()) {
         notification.pop();
         CURRENTLY_SHOWN_NOTIFICATIONS.add(notification);
       } else {
         NOTIFICATION_QUEUE.add(notification);
       }
     }
+  }
+
+  private boolean hasRoomForNewNotification() {
+    return CURRENTLY_SHOWN_NOTIFICATIONS.size() <
+        PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue();
   }
 }
