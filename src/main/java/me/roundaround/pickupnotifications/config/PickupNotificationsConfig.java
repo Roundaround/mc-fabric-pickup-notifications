@@ -1,55 +1,64 @@
 package me.roundaround.pickupnotifications.config;
 
-import me.roundaround.pickupnotifications.PickupNotificationsMod;
-import me.roundaround.roundalib.config.ModConfig;
+import me.roundaround.pickupnotifications.client.PickupNotificationsClientMod;
+import me.roundaround.roundalib.config.ConfigPath;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
+import me.roundaround.roundalib.config.manage.store.GameScopedFileStore;
 import me.roundaround.roundalib.config.option.*;
 import me.roundaround.roundalib.config.value.GuiAlignment;
 import me.roundaround.roundalib.config.value.Position;
-import me.roundaround.roundalib.shadow.nightconfig.core.Config;
+import me.roundaround.roundalib.nightconfig.core.Config;
 
 import java.util.Arrays;
 
-public class PickupNotificationsConfig extends ModConfig {
-  public final BooleanConfigOption MOD_ENABLED;
-  public final OptionListConfigOption<GuiAlignment> GUI_ALIGNMENT;
-  public final PositionConfigOption GUI_OFFSET;
-  public final FloatConfigOption GUI_SCALE;
-  public final IntConfigOption MAX_NOTIFICATIONS;
-  public final OptionListConfigOption<IconAlignment> ICON_ALIGNMENT;
-  public final BooleanConfigOption SHOW_UNIQUE_INFO;
-  public final BooleanConfigOption RENDER_BACKGROUND;
-  public final FloatConfigOption BACKGROUND_OPACITY;
-  public final BooleanConfigOption RENDER_SHADOW;
+public class PickupNotificationsConfig extends ModConfigImpl implements GameScopedFileStore {
+  private static PickupNotificationsConfig instance;
+
+  public BooleanConfigOption modEnabled;
+  public EnumConfigOption<GuiAlignment> guiAlignment;
+  public PositionConfigOption guiOffset;
+  public FloatConfigOption guiScale;
+  public IntConfigOption maxNotifications;
+  public EnumConfigOption<IconAlignment> iconAlignment;
+  public BooleanConfigOption showUniqueInfo;
+  public BooleanConfigOption renderBackground;
+  public FloatConfigOption backgroundOpacity;
+  public BooleanConfigOption renderShadow;
 
   public PickupNotificationsConfig() {
-    super(PickupNotificationsMod.MOD_ID,
-        ModConfig.options(PickupNotificationsMod.MOD_ID).setConfigVersion(2));
+    super(PickupNotificationsClientMod.MOD_ID, 2);
+  }
 
-    MOD_ENABLED = registerConfigOption(BooleanConfigOption.builder(this,
-            "modEnabled",
-            "pickupnotifications.mod_enabled.label")
+  public static PickupNotificationsConfig getInstance() {
+    if (instance == null) {
+      instance = new PickupNotificationsConfig();
+    }
+    return instance;
+  }
+
+  @Override
+  protected void registerOptions() {
+    modEnabled = this.register(BooleanConfigOption.builder(ConfigPath.of("modEnabled"))
+        .setDefaultValue(true)
         .setComment("Simple toggle for the mod! Set to false to disable.")
         .build());
 
-    GUI_ALIGNMENT = registerConfigOption(OptionListConfigOption.builder(this,
-            "guiAlignment",
-            "pickupnotifications.gui_alignment.label",
-            Arrays.asList(GuiAlignment.values()),
-            GuiAlignment.TOP_LEFT)
-        .setComment("Where to position the notifications. Can be one of",
-            "'top_left', 'top_right', 'bottom_left', or 'bottom_right'.")
+    guiAlignment = this.register(EnumConfigOption.builder(ConfigPath.of("guiAlignment"),
+            Arrays.asList(GuiAlignment.values())
+        )
+        .setDefaultValue(GuiAlignment.TOP_LEFT)
+        .setComment(
+            "Where to position the notifications. Can be one of",
+            "'top_left', 'top_right', 'bottom_left', or 'bottom_right'."
+        )
         .build());
 
-    GUI_OFFSET = registerConfigOption(PositionConfigOption.builder(this,
-            "guiOffset",
-            "pickupnotifications.gui_offset.label",
-            new Position(4, 4))
+    guiOffset = this.register(PositionConfigOption.builder(ConfigPath.of("guiOffset"))
+        .setDefaultValue(new Position(4, 4))
         .setComment("The amount to offset the notifications from the edge", "of the screen.")
         .build());
 
-    GUI_SCALE = registerConfigOption(FloatConfigOption.sliderBuilder(this,
-            "guiScale",
-            "pickupnotifications.gui_scale.label")
+    guiScale = this.register(FloatConfigOption.sliderBuilder(ConfigPath.of("guiScale"))
         .setDefaultValue(1)
         .setMinValue(0.1f)
         .setMaxValue(3f)
@@ -57,42 +66,38 @@ public class PickupNotificationsConfig extends ModConfig {
         .setComment("Scale to render notifications at.")
         .build());
 
-    MAX_NOTIFICATIONS = registerConfigOption(IntConfigOption.builder(this,
-            "maxNotifications",
-            "pickupnotifications.max_notifications.label")
+    maxNotifications = this.register(IntConfigOption.builder(ConfigPath.of("maxNotifications"))
         .setDefaultValue(4)
-        .setComment("How many notifications can be on the screen at a time.",
+        .setComment(
+            "How many notifications can be on the screen at a time.",
             "Additional notifications will be queued up and shown once",
-            "there is room.")
+            "there is room."
+        )
         .build());
 
-    ICON_ALIGNMENT = registerConfigOption(OptionListConfigOption.builder(this,
-            "iconAlignment",
-            "pickupnotifications.icon_alignment.label",
-            Arrays.asList(IconAlignment.values()),
-            IconAlignment.getDefault())
-        .setComment("Whether the item icons should appear on the 'left' or",
+    iconAlignment = this.register(EnumConfigOption.builder(ConfigPath.of("iconAlignment"),
+            Arrays.asList(IconAlignment.values())
+        )
+        .setDefaultValue(IconAlignment.getDefault())
+        .setComment(
+            "Whether the item icons should appear on the 'left' or",
             "'right' of notifications, always on the 'outside' (left for",
             "left-aligned, right for right-aligned), or always on the",
-            "'inside' of notifications.")
+            "'inside' of notifications."
+        )
         .build());
 
-    SHOW_UNIQUE_INFO = registerConfigOption(BooleanConfigOption.yesNoBuilder(this,
-            "showUniqueInfo",
-            "pickupnotifications.show_unique_info.label")
-        .setComment("Whether to show custom names, rarity, and enchantments",
-            "in the notifications.")
+    showUniqueInfo = this.register(BooleanConfigOption.yesNoBuilder(ConfigPath.of("showUniqueInfo"))
+        .setDefaultValue(true)
+        .setComment("Whether to show custom names, rarity, and enchantments", "in the notifications.")
         .build());
 
-    RENDER_BACKGROUND = registerConfigOption(BooleanConfigOption.yesNoBuilder(this,
-            "renderBackground",
-            "pickupnotifications.render_background.label")
+    renderBackground = this.register(BooleanConfigOption.yesNoBuilder(ConfigPath.of("renderBackground"))
+        .setDefaultValue(true)
         .setComment("Whether to render the background behind notifications.")
         .build());
 
-    BACKGROUND_OPACITY = registerConfigOption(FloatConfigOption.sliderBuilder(this,
-            "backgroundOpacity",
-            "pickupnotifications.background_opacity.label")
+    backgroundOpacity = this.register(FloatConfigOption.sliderBuilder(ConfigPath.of("backgroundOpacity"))
         .setDefaultValue(0.5f)
         .setMinValue(0f)
         .setMaxValue(1f)
@@ -100,22 +105,20 @@ public class PickupNotificationsConfig extends ModConfig {
         .setComment("Opacity of the notification background color.")
         .build());
 
-    RENDER_SHADOW = registerConfigOption(BooleanConfigOption.yesNoBuilder(this,
-            "renderShadow",
-            "pickupnotifications.render_shadow.label")
+    renderShadow = this.register(BooleanConfigOption.yesNoBuilder(ConfigPath.of("renderShadow"))
         .setDefaultValue(false)
         .setComment("Whether to render text shadow in notifications.")
         .build());
   }
 
   @Override
-  protected boolean updateConfigVersion(int version, Config config) {
+  public boolean performConfigUpdate(int version, Config config) {
     if (version == 1) {
       config.set("pickupnotifications.guiOffset",
-          new Position(config.getIntOrElse("pickupnotifications.guiOffsetX",
-              GUI_OFFSET.getDefault().x()),
-              config.getIntOrElse("pickupnotifications.guiOffsetY",
-                  GUI_OFFSET.getDefault().y())).toString());
+          new Position(config.getIntOrElse("pickupnotifications.guiOffsetX", this.guiOffset.getDefaultValue().x()),
+              config.getIntOrElse("pickupnotifications.guiOffsetY", this.guiOffset.getDefaultValue().y())
+          ).toString()
+      );
       return true;
     }
     return false;

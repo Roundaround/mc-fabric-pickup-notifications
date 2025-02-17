@@ -31,7 +31,7 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
   protected void init() {
     super.init();
 
-    this.config.GUI_OFFSET.setValue(getValue());
+    this.config.guiOffset.setValue(getValue());
 
     this.notifications.clear();
     this.notifications.add(new PickupNotificationLine(new ItemStack(Items.DIAMOND, 64),
@@ -48,7 +48,7 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
   @Override
   protected void setValue(Position value) {
     super.setValue(value);
-    this.config.GUI_OFFSET.setValue(this.getValue());
+    this.config.guiOffset.setValue(this.getValue());
   }
 
   @Override

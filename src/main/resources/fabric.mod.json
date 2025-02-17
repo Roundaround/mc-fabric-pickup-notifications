@@ -16,8 +16,11 @@
   "icon": "assets/pickupnotifications/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": [
+    "main": [
       "me.roundaround.pickupnotifications.PickupNotificationsMod"
+    ],
+    "client": [
+      "me.roundaround.pickupnotifications.client.PickupNotificationsClientMod"
     ],
     "modmenu": [
       "me.roundaround.pickupnotifications.compat.modmenu.ModMenuImpl"
@@ -29,7 +32,6 @@
   "depends": {
     "fabricloader": "*",
     "fabric-api": "*",
-    "minecraft": "1.20.*",
-    "java": ">=17"
+    "minecraft": "1.20.*"
   }
 }

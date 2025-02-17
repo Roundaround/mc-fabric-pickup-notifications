@@ -132,6 +132,6 @@ public class InventorySnapshot implements Iterable<ItemStack> {
   }
 
   public static boolean areItemStacksMergeable(ItemStack a, ItemStack b) {
-    return !a.isEmpty() && !b.isEmpty() && ItemStack.canCombine(a, b);
+    return !a.isEmpty() && !b.isEmpty() && ItemStack.areItemsAndComponentsEqual(a, b);
   }
 }

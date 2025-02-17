@@ -1,6 +1,6 @@
 package me.roundaround.pickupnotifications.util;
 
-import me.roundaround.pickupnotifications.network.ItemAddedPacket;
+import me.roundaround.pickupnotifications.server.networking.ServerNetworking;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
@@ -17,7 +17,8 @@ public abstract class CheckForNewItems {
       DefaultedList<ItemStack> previousTrackedStacks,
       ItemStack previousCursorStack,
       InventorySnapshot extraItemsForPrevious,
-      ServerPlayerEntity player) {
+      ServerPlayerEntity player
+  ) {
 
     InventorySnapshot previous = new InventorySnapshot();
     InventorySnapshot current = new InventorySnapshot();
@@ -75,7 +76,7 @@ public abstract class CheckForNewItems {
       int changed = diff.takeFor(stackChange);
       if (changed > 0) {
         stackChange.setCount(changed);
-        ItemAddedPacket.sendToPlayer(player, stackChange);
+        ServerNetworking.sendItemAdded(player, stackChange);
       }
     }
   }

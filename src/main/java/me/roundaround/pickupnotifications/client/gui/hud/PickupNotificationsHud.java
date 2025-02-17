@@ -1,6 +1,6 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
-import me.roundaround.pickupnotifications.PickupNotificationsMod;
+import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -19,8 +19,7 @@ public class PickupNotificationsHud {
 
   private final CopyOnWriteArrayList<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS =
       new CopyOnWriteArrayList<>();
-  private final ConcurrentLinkedDeque<PickupNotificationLine> NOTIFICATION_QUEUE =
-      new ConcurrentLinkedDeque<>();
+  private final ConcurrentLinkedDeque<PickupNotificationLine> NOTIFICATION_QUEUE = new ConcurrentLinkedDeque<>();
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
@@ -29,7 +28,7 @@ public class PickupNotificationsHud {
   }
 
   private void tick(final MinecraftClient client) {
-    if (!PickupNotificationsMod.CONFIG.MOD_ENABLED.getValue()) {
+    if (!PickupNotificationsConfig.getInstance().modEnabled.getValue()) {
       return;
     }
 
@@ -58,7 +57,7 @@ public class PickupNotificationsHud {
   }
 
   private void render(DrawContext drawContext, float tickDelta) {
-    if (!PickupNotificationsMod.CONFIG.MOD_ENABLED.getValue()) {
+    if (!PickupNotificationsConfig.getInstance().modEnabled.getValue()) {
       return;
     }
 
@@ -76,14 +75,11 @@ public class PickupNotificationsHud {
     }
   }
 
-  private void handleItemPickedUp(ItemStack itemStack) {
+  private void handleItemPickedUp(ItemStack stack) {
     boolean mergedIntoExisting = false;
-    ItemStack pickedUp = itemStack.copy();
-
-    if (!PickupNotificationsMod.CONFIG.SHOW_UNIQUE_INFO.getValue()) {
-      pickedUp.removeCustomName();
-      pickedUp.removeSubNbt("Enchantments");
-    }
+    ItemStack pickedUp = PickupNotificationsConfig.getInstance().showUniqueInfo.getValue() ?
+        stack.copy() :
+        new ItemStack(stack.getItem(), stack.getCount());
 
     for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
       if (notification.attemptAdd(pickedUp)) {
@@ -114,7 +110,6 @@ public class PickupNotificationsHud {
   }
 
   private boolean hasRoomForNewNotification() {
-    return CURRENTLY_SHOWN_NOTIFICATIONS.size() <
-        PickupNotificationsMod.CONFIG.MAX_NOTIFICATIONS.getValue();
+    return CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsConfig.getInstance().maxNotifications.getValue();
   }
 }
