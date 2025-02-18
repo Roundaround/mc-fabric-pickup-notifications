@@ -1,6 +1,6 @@
 package me.roundaround.pickupnotifications.compat.roundalib;
 
-import me.roundaround.pickupnotifications.client.gui.config.GuiOffsetPositionEditScreen;
+import me.roundaround.pickupnotifications.client.gui.screen.GuiOffsetPositionEditScreen;
 import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.roundalib.client.gui.widget.config.ControlRegistry;

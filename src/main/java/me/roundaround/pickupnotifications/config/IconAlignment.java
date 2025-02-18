@@ -20,7 +20,7 @@ public enum IconAlignment implements EnumValue<IconAlignment> {
 
   @Override
   public String getI18nKey(String modId) {
-    return "pickupnotifications.icon_alignment." + this.id;
+    return "pickupnotifications.iconAlignment." + this.id;
   }
 
   @Override

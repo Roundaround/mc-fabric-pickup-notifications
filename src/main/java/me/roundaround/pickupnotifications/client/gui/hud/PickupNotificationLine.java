@@ -1,6 +1,5 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
@@ -10,22 +9,17 @@ import me.roundaround.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
+
+import static me.roundaround.roundalib.config.value.GuiAlignment.AlignmentX;
+import static me.roundaround.roundalib.config.value.GuiAlignment.AlignmentY;
 
 public class PickupNotificationLine {
   public static final int SHOW_DURATION = 120;
@@ -33,27 +27,24 @@ public class PickupNotificationLine {
   public static final int POP_DURATION = 5;
   public static final int ANIM_DURATION = 6;
   public static final int ANIM_IN_FINISH_TIME = SHOW_DURATION - ANIM_DURATION;
-  public static final int SPRITE_RAW_SIZE = 16;
   public static final int LEFT_PADDING = 1;
 
-  private final ItemStack itemStack;
-  private final PickupNotificationsConfig config;
+  private final ItemStack stack;
   private final boolean timeless;
-  private final MinecraftClient minecraft;
+  private final MinecraftClient client;
   private int originalTimeRemaining;
   private int timeRemaining;
   private int popTimeRemaining;
   private long lastTick;
 
   public PickupNotificationLine(ItemStack initialItems) {
-    this(initialItems, PickupNotificationsConfig.getInstance(), false);
+    this(initialItems, false);
   }
 
-  public PickupNotificationLine(ItemStack initialItems, PickupNotificationsConfig config, boolean timeless) {
-    itemStack = initialItems.copy();
-    this.config = config;
+  public PickupNotificationLine(ItemStack initialItems, boolean timeless) {
+    stack = initialItems.copy();
     this.timeless = timeless;
-    minecraft = MinecraftClient.getInstance();
+    client = MinecraftClient.getInstance();
     originalTimeRemaining = SHOW_DURATION;
     timeRemaining = SHOW_DURATION;
   }
@@ -65,16 +56,17 @@ public class PickupNotificationLine {
     lastTick = Util.getMeasuringTimeMs();
   }
 
-  public void render(DrawContext drawContext, int idx) {
-    GuiAlignment alignment = config.guiAlignment.getValue();
-    Position offset = config.guiOffset.getValue();
-    float scale = config.guiScale.getValue();
+  public void render(DrawContext context, int idx) {
+    PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
+    GuiAlignment alignment = config.guiAlignment.getPendingValue();
+    Position offset = config.guiOffset.getPendingValue();
+    float scale = config.guiScale.getPendingValue();
 
     float x = alignment.getPosX() + offset.x() * alignment.getOffsetMultiplierX();
     float y = alignment.getPosY() + offset.y() * alignment.getOffsetMultiplierY();
 
-    MutableText text = getFormattedDisplayString();
-    TextRenderer textRenderer = minecraft.textRenderer;
+    MutableText text = getFormattedDisplayString(config);
+    TextRenderer textRenderer = client.textRenderer;
 
     int spriteSize = textRenderer.fontHeight + 1;
     int textWidth = textRenderer.getWidth(text);
@@ -83,11 +75,11 @@ public class PickupNotificationLine {
     float xAdjust = 0f;
     float yAdjust = 0f;
 
-    if (alignment.getAlignmentX() == GuiAlignment.AlignmentX.RIGHT) {
+    if (alignment.getAlignmentX() == AlignmentX.RIGHT) {
       xAdjust = -fullWidth;
     }
 
-    if (alignment.getAlignmentY() == GuiAlignment.AlignmentY.BOTTOM) {
+    if (alignment.getAlignmentY() == AlignmentY.BOTTOM) {
       yAdjust = -textRenderer.fontHeight - 2;
     }
 
@@ -97,132 +89,94 @@ public class PickupNotificationLine {
     x += xAdjust * scale;
     y += yAdjust * scale;
 
-    renderBackgroundAndText(drawContext, idx, x, y, fullWidth);
-    renderItem(idx, x, y, fullWidth);
+    renderBackgroundAndText(context, idx, x, y, fullWidth);
   }
 
-  private void renderBackgroundAndText(
-      DrawContext drawContext, int idx, float x, float y, int width
-  ) {
-    boolean guiRight = config.guiAlignment.getValue().getAlignmentX().equals(GuiAlignment.AlignmentX.RIGHT);
-    IconAlignment iconAlignment = config.iconAlignment.getValue();
-    boolean rightAligned =
-        iconAlignment.equals(IconAlignment.RIGHT) || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
-    float scale = config.guiScale.getValue();
+  private void renderBackgroundAndText(DrawContext context, int idx, float x, float y, int totalWidth) {
+    PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
+    boolean rightAligned = this.isRightAligned();
+    float scale = config.guiScale.getPendingValue();
 
-    MutableText text = getFormattedDisplayString();
-    TextRenderer textRenderer = minecraft.textRenderer;
+    MutableText text = getFormattedDisplayString(config);
+    TextRenderer textRenderer = client.textRenderer;
 
     int height = textRenderer.fontHeight + 1;
-    int spriteSize = height;
-    int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + spriteSize;
+    int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + height;
 
-    MatrixStack matrixStack = drawContext.getMatrices();
+    MatrixStack matrixStack = context.getMatrices();
     matrixStack.push();
     matrixStack.translate(x, y, 800 + idx);
     matrixStack.scale(scale, scale, 1);
 
-    if (config.renderBackground.getValue()) {
-      drawContext.fill(-1, -1, width, height, GuiUtil.genColorInt(0, 0, 0, config.backgroundOpacity.getValue()));
+    if (config.renderBackground.getPendingValue()) {
+      context.fill(-1,
+          -1,
+          totalWidth,
+          height,
+          GuiUtil.genColorInt(0, 0, 0, config.backgroundOpacity.getPendingValue())
+      );
     }
 
     {
       matrixStack.push();
       matrixStack.translate(leftPad, 0, 0);
       RenderSystem.enableBlend();
-      drawContext.drawText(textRenderer, text, 0, 1, GuiUtil.LABEL_COLOR, config.renderShadow.getValue());
+      context.drawText(textRenderer, text, 0, 1, GuiUtil.LABEL_COLOR, config.renderShadow.getPendingValue());
       RenderSystem.disableBlend();
       matrixStack.pop();
     }
 
+    renderItem(context, height, rightAligned, totalWidth);
+
     matrixStack.pop();
   }
 
-  private void renderItem(
-      int idx, float x, float y, int width
-  ) {
-    float scale = config.guiScale.getValue();
-    MatrixStack matrixStack = RenderSystem.getModelViewStack();
+  private boolean isRightAligned() {
+    PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
+    IconAlignment icon = config.iconAlignment.getPendingValue();
+    if (icon == IconAlignment.RIGHT) {
+      return true;
+    }
 
-    matrixStack.push();
-    matrixStack.translate(x, y, 900 + idx);
-    matrixStack.scale(scale, scale, 1);
+    return switch (config.guiAlignment.getPendingValue().getAlignmentX()) {
+      case LEFT -> icon == IconAlignment.INSIDE;
+      case RIGHT -> icon == IconAlignment.OUTSIDE;
+    };
+  }
 
-    boolean guiRight = config.guiAlignment.getValue().getAlignmentX().equals(GuiAlignment.AlignmentX.RIGHT);
-    IconAlignment iconAlignment = config.iconAlignment.getValue();
-    boolean rightAligned =
-        iconAlignment.equals(IconAlignment.RIGHT) || guiRight && iconAlignment.equals(IconAlignment.OUTSIDE);
+  private void renderItem(DrawContext context, int size, boolean rightAligned, int totalWidth) {
+    MatrixStack matrixStack = context.getMatrices();
 
-    TextRenderer textRenderer = minecraft.textRenderer;
-
-    int spriteSize = textRenderer.fontHeight + 1;
     long renderTime = Util.getMeasuringTimeMs();
 
     // 50ms per tick
-    float partialTick = MathHelper.clamp((renderTime - lastTick) / 50f, 0, 1);
-    float partialPopTimeRemaining = popTimeRemaining - partialTick;
-
-    float xPos = rightAligned ? width - spriteSize / 2f - LEFT_PADDING - 0.5f : spriteSize / 2f + LEFT_PADDING - 0.5f;
-    float yPos = spriteSize / 2f - 0.5f;
+    float partialTick = MathHelper.clamp((renderTime - this.lastTick) / 50f, 0, 1);
+    float partialPopTimeRemaining = this.popTimeRemaining - partialTick;
 
     matrixStack.push();
-    matrixStack.translate(xPos, yPos, 0);
-    matrixStack.scale(spriteSize, -spriteSize, 1);
+    matrixStack.translate(rightAligned ? totalWidth - LEFT_PADDING - size + 0.25f : LEFT_PADDING - 0.5f, -0.5f, 0);
+    matrixStack.scale(size / 16f, size / 16f, 1);
 
-    float popScale = 1f + MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
+    float popAmount = MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
+    float popScale = 1f + popAmount;
 
     matrixStack.push();
+    matrixStack.translate(8, 12, 0);
     matrixStack.scale(1f / popScale, (1f + popScale) / 2f, 1);
+    matrixStack.translate(-8, -12, 0);
 
-    ItemRenderer itemRenderer = minecraft.getItemRenderer();
-    TextureManager textureManager = minecraft.getTextureManager();
-
-    BakedModel model = itemRenderer.getModel(itemStack, null, minecraft.player, 0);
-    textureManager.getTexture(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
-    RenderSystem.setShaderTexture(0, PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
-    RenderSystem.enableBlend();
-    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-    RenderSystem.setShaderColor(1, 1, 1, 1);
-
-    RenderSystem.applyModelViewMatrix();
-    MatrixStack matrixStack2 = new MatrixStack();
-    VertexConsumerProvider.Immediate immediate = minecraft.getBufferBuilders().getEntityVertexConsumers();
-
-    boolean isNotLit = !model.isSideLit();
-    if (isNotLit) {
-      DiffuseLighting.disableGuiDepthLighting();
-    }
-
-    itemRenderer.renderItem(
-        itemStack,
-        ModelTransformationMode.GUI,
-        false,
-        matrixStack2,
-        immediate,
-        LightmapTextureManager.MAX_LIGHT_COORDINATE,
-        OverlayTexture.DEFAULT_UV,
-        model
-    );
-    immediate.draw();
+    context.drawItemWithoutEntity(this.stack, 0, 0);
 
     matrixStack.pop();
     matrixStack.pop();
-    matrixStack.pop();
-
-    RenderSystem.applyModelViewMatrix();
-
-    if (isNotLit) {
-      DiffuseLighting.enableGuiDepthLighting();
-    }
-    RenderSystem.enableDepthTest();
   }
 
   public void pop() {
-    popTimeRemaining = POP_DURATION;
+    this.popTimeRemaining = POP_DURATION;
   }
 
   public boolean isExpired() {
-    return timeRemaining <= 0;
+    return this.timeRemaining <= 0;
   }
 
   public boolean attemptAdd(ItemStack addition) {
@@ -230,38 +184,38 @@ public class PickupNotificationLine {
       return false;
     }
 
-    if (areItemStacksMergeable(itemStack, addition)) {
-      itemStack.increment(addition.getCount());
-      timeRemaining = Math.min(timeRemaining + DURATION_INCREASE_ON_ADD, SHOW_DURATION);
+    if (areItemStacksMergeable(this.stack, addition)) {
+      this.stack.increment(addition.getCount());
+      this.timeRemaining = Math.min(this.timeRemaining + DURATION_INCREASE_ON_ADD, SHOW_DURATION);
       return true;
     }
 
     return false;
   }
 
-  private MutableText getFormattedDisplayString() {
-    MutableText name = Text.empty().append(itemStack.getName());
-    if (config.showUniqueInfo.getValue()) {
-      name.formatted(itemStack.getRarity().formatting);
-      if (itemStack.hasCustomName()) {
+  private MutableText getFormattedDisplayString(PickupNotificationsConfig config) {
+    MutableText name = Text.empty().append(this.stack.getName());
+    if (config.showUniqueInfo.getPendingValue()) {
+      name.formatted(this.stack.getRarity().getFormatting());
+      if (this.stack.get(DataComponentTypes.CUSTOM_NAME) != null) {
         name.formatted(Formatting.ITALIC);
       }
     }
-    return Text.literal(itemStack.getCount() + "x ").append(name);
+    return Text.literal(this.stack.getCount() + "x ").append(name);
   }
 
   private float getXOffsetPercent() {
-    if (timeless) {
+    if (this.timeless) {
       return 0f;
     }
 
     long renderTime = Util.getMeasuringTimeMs();
 
     // 50ms per tick
-    float partialTick = MathHelper.clamp((renderTime - lastTick) / 50f, 0, 1);
-    float partialTimeRemaining = timeRemaining - partialTick;
+    float partialTick = MathHelper.clamp((renderTime - this.lastTick) / 50f, 0, 1);
+    float partialTimeRemaining = this.timeRemaining - partialTick;
 
-    if (originalTimeRemaining > ANIM_IN_FINISH_TIME) {
+    if (this.originalTimeRemaining > ANIM_IN_FINISH_TIME) {
       // Animating in
       float animTime = Math.max(0f, partialTimeRemaining) - ANIM_IN_FINISH_TIME;
       float basePercent = MathHelper.clamp(animTime / ANIM_DURATION, 0, 1);
@@ -278,6 +232,6 @@ public class PickupNotificationLine {
   }
 
   private static boolean areItemStacksMergeable(ItemStack a, ItemStack b) {
-    return !a.isEmpty() && !b.isEmpty() && ItemStack.canCombine(a, b);
+    return !a.isEmpty() && !b.isEmpty() && ItemStack.areItemsAndComponentsEqual(a, b);
   }
 }
