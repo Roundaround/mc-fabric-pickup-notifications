@@ -56,37 +56,37 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
 
   @Override
   public void registerScreenCloseReturns(ItemStack stack) {
-    returnedItemsFromScreenClose.add(stack);
+    this.returnedItemsFromScreenClose.add(stack);
   }
 
   @Inject(
       method = "internalOnSlotClick", at = @At(
       value = "INVOKE",
-      target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;",
+      target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)" +
+               "Lnet/minecraft/item/ItemStack;",
       ordinal = 0
   )
   )
   public void beforeFirstTransferSlot(
-      int slotIndex,
-      int button,
-      SlotActionType actionType,
-      PlayerEntity player,
-      CallbackInfo info) {
-    pauseNotifications = true;
+      int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo info
+  ) {
+    this.pauseNotifications = true;
   }
 
   @Redirect(
       method = "internalOnSlotClick", at = @At(
       value = "INVOKE",
-      target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"
+      target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)" +
+               "Lnet/minecraft/item/ItemStack;"
   )
   )
   public ItemStack wrapTransferSlot(
-      ScreenHandler self, PlayerEntity player, int slotIndex) {
+      ScreenHandler self, PlayerEntity player, int slotIndex
+  ) {
     ItemStack result = self.quickMove(player, slotIndex);
 
     if (!result.isEmpty()) {
-      quickCraftItems.add(result.copy());
+      this.quickCraftItems.add(result.copy());
     }
 
     return result;
@@ -94,22 +94,19 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
 
   @Inject(method = "internalOnSlotClick", at = @At(value = "TAIL"))
   public void internalOnSlotClick(
-      int slotIndex,
-      int button,
-      SlotActionType actionType,
-      PlayerEntity player,
-      CallbackInfo info) {
-    pauseNotifications = false;
+      int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo info
+  ) {
+    this.pauseNotifications = false;
   }
 
   @Inject(method = "sendContentUpdates", at = @At(value = "HEAD"))
   public void sendContentUpdates(CallbackInfo info) {
-    if (pauseNotifications || disableSync || player == null) {
+    if (this.pauseNotifications || this.disableSync || this.player == null) {
       return;
     }
 
-    if (firstRun) {
-      firstRun = false;
+    if (this.firstRun) {
+      this.firstRun = false;
       return;
     }
 
@@ -117,20 +114,22 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     // sources while keeping them separate.
     InventorySnapshot extraItemsForPrevious = new InventorySnapshot();
 
-    if (!quickCraftItems.isEmpty()) {
-      extraItemsForPrevious.addAll(quickCraftItems);
-      quickCraftItems.clear();
+    if (!this.quickCraftItems.isEmpty()) {
+      extraItemsForPrevious.addAll(this.quickCraftItems);
+      this.quickCraftItems.clear();
     }
 
-    if (!returnedItemsFromScreenClose.isEmpty()) {
-      extraItemsForPrevious.addAll(returnedItemsFromScreenClose);
-      returnedItemsFromScreenClose.clear();
+    if (!this.returnedItemsFromScreenClose.isEmpty()) {
+      extraItemsForPrevious.addAll(this.returnedItemsFromScreenClose);
+      this.returnedItemsFromScreenClose.clear();
     }
 
-    CheckForNewItems.run(((ScreenHandler) (Object) this),
-        previousTrackedStacks,
-        previousCursorStack,
+    CheckForNewItems.run(
+        ((ScreenHandler) (Object) this),
+        this.previousTrackedStacks,
+        this.previousCursorStack,
         extraItemsForPrevious,
-        player);
+        this.player
+    );
   }
 }
