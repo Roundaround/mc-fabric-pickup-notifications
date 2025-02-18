@@ -1,6 +1,6 @@
 package me.roundaround.pickupnotifications.config;
 
-import me.roundaround.pickupnotifications.client.PickupNotificationsClientMod;
+import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import me.roundaround.roundalib.config.ConfigPath;
 import me.roundaround.roundalib.config.manage.ModConfigImpl;
 import me.roundaround.roundalib.config.manage.store.GameScopedFileStore;
@@ -26,7 +26,7 @@ public class PickupNotificationsConfig extends ModConfigImpl implements GameScop
   public BooleanConfigOption renderShadow;
 
   public PickupNotificationsConfig() {
-    super(PickupNotificationsClientMod.MOD_ID, 2);
+    super(PickupNotificationsMod.MOD_ID, 2);
   }
 
   public static PickupNotificationsConfig getInstance() {

@@ -1,6 +1,6 @@
 package me.roundaround.pickupnotifications.network;
 
-import me.roundaround.pickupnotifications.client.PickupNotificationsClientMod;
+import me.roundaround.pickupnotifications.PickupNotificationsMod;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
@@ -12,7 +12,7 @@ public final class Networking {
   private Networking() {
   }
 
-  public static final Identifier ITEM_ADDED_S2C = Identifier.of(PickupNotificationsClientMod.MOD_ID, "item_added_s2c");
+  public static final Identifier ITEM_ADDED_S2C = Identifier.of(PickupNotificationsMod.MOD_ID, "item_added_s2c");
 
   public static void registerS2CPayloads() {
     PayloadTypeRegistry.playS2C().register(ItemAddedS2C.ID, ItemAddedS2C.CODEC);

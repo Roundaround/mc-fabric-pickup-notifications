@@ -19,7 +19,6 @@ public abstract class CheckForNewItems {
       InventorySnapshot extraItemsForPrevious,
       ServerPlayerEntity player
   ) {
-
     InventorySnapshot previous = new InventorySnapshot();
     InventorySnapshot current = new InventorySnapshot();
     HashSet<Integer> playerSlotsWithChanges = new HashSet<>();
@@ -88,6 +87,6 @@ public abstract class CheckForNewItems {
     ItemStack bCopy = b.copy();
     bCopy.setDamage(0);
 
-    return ItemStack.areEqual(aCopy, bCopy);
+    return ItemStack.areItemsAndComponentsEqual(aCopy, bCopy);
   }
 }
