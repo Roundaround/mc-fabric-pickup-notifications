@@ -2,6 +2,7 @@ package me.roundaround.pickupnotifications.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import me.roundaround.pickupnotifications.server.networking.ServerNetworking;
 import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
@@ -19,6 +20,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegisterScreenCloseItems {
@@ -116,12 +119,11 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
       this.returnedItemsFromScreenClose.clear();
     }
 
-    CheckForNewItems.run(
-        ((ScreenHandler) (Object) this),
+    List<ItemStack> newItems = CheckForNewItems.run(((ScreenHandler) (Object) this),
         this.previousTrackedStacks,
         this.previousCursorStack,
-        extraItemsForPrevious,
-        this.player
+        extraItemsForPrevious
     );
+    newItems.forEach((stack) -> ServerNetworking.sendItemAdded(this.player, stack));
   }
 }

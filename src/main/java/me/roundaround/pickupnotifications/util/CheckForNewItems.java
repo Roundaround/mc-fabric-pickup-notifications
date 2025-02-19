@@ -1,23 +1,21 @@
 package me.roundaround.pickupnotifications.util;
 
-import me.roundaround.pickupnotifications.server.networking.ServerNetworking;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public abstract class CheckForNewItems {
-  public static void run(
+  public static ArrayList<ItemStack> run(
       ScreenHandler screenHandler,
       DefaultedList<ItemStack> previousTrackedStacks,
       ItemStack previousCursorStack,
-      InventorySnapshot extraItemsForPrevious,
-      ServerPlayerEntity player
+      InventorySnapshot extraItemsForPrevious
   ) {
     InventorySnapshot previous = new InventorySnapshot();
     InventorySnapshot current = new InventorySnapshot();
@@ -49,7 +47,7 @@ public abstract class CheckForNewItems {
     }
 
     if (playerSlotsWithChanges.isEmpty()) {
-      return;
+      return new ArrayList<>(0);
     }
 
     if (!previousCursorStack.isEmpty()) {
@@ -65,6 +63,7 @@ public abstract class CheckForNewItems {
     }
 
     InventorySnapshot diff = current.diff(previous);
+    ArrayList<ItemStack> newItems = new ArrayList<>();
 
     for (int i : playerSlotsWithChanges) {
       ItemStack stackChange = screenHandler.getSlot(i).getStack().copy();
@@ -75,9 +74,11 @@ public abstract class CheckForNewItems {
       int changed = diff.takeFor(stackChange);
       if (changed > 0) {
         stackChange.setCount(changed);
-        ServerNetworking.sendItemAdded(player, stackChange);
+        newItems.add(stackChange);
       }
     }
+
+    return newItems;
   }
 
   private static boolean areItemStacksEqualIgnoreDamage(ItemStack a, ItemStack b) {
