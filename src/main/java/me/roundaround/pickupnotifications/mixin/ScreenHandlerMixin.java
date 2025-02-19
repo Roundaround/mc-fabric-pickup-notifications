@@ -43,12 +43,12 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
   private ItemStack previousCursorStack;
 
   @Override
-  public void setPlayer(ServerPlayerEntity player) {
+  public void pickupnotifications$setPlayer(ServerPlayerEntity player) {
     this.player = player;
   }
 
   @Override
-  public void registerScreenCloseReturns(ItemStack stack) {
+  public void pickupnotifications$registerScreenCloseReturns(ItemStack stack) {
     this.returnedItemsFromScreenClose.add(stack);
   }
 

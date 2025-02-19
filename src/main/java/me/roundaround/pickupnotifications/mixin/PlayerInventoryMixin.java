@@ -4,7 +4,6 @@ import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,16 +20,12 @@ public abstract class PlayerInventoryMixin {
 
   @Inject(method = "offerOrDrop", at = @At(value = "HEAD"))
   public void offerOrDrop(ItemStack stack, CallbackInfo info) {
-    if (!(player instanceof ServerPlayerEntity)) {
+    if (!(this.player instanceof ServerPlayerEntity)) {
       return;
     }
 
-    ScreenHandler screenHandler = player.playerScreenHandler;
-
-    if (!(screenHandler instanceof CanRegisterScreenCloseItems)) {
-      return;
+    if (this.player.playerScreenHandler instanceof CanRegisterScreenCloseItems handler) {
+      handler.pickupnotifications$registerScreenCloseReturns(stack.copy());
     }
-
-    ((CanRegisterScreenCloseItems) screenHandler).registerScreenCloseReturns(stack.copy());
   }
 }
