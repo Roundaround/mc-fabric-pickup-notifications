@@ -3,6 +3,7 @@ package me.roundaround.pickupnotifications.client.gui.hud;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
@@ -68,8 +69,9 @@ public class MockInGameHud {
     int y = getHotbarTop(context);
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(HOTBAR_TEXTURE, x, y, HOTBAR_WIDTH, HOTBAR_HEIGHT);
-    context.drawGuiTexture(HOTBAR_SELECTION_TEXTURE,
+    context.drawGuiTexture(RenderLayer::getGuiTextured, HOTBAR_TEXTURE, x, y, HOTBAR_WIDTH, HOTBAR_HEIGHT);
+    context.drawGuiTexture(RenderLayer::getGuiTextured,
+        HOTBAR_SELECTION_TEXTURE,
         x - 1 + MOCK_SELECTED_SLOT * SLOT_SIZE,
         y - 1,
         SELECTION_WIDTH,
@@ -84,7 +86,7 @@ public class MockInGameHud {
         int itemY = context.getScaledWindowHeight() - SLOT_SIZE + 1;
 
         context.drawItemWithoutEntity(stack, itemX, itemY, slot + 1);
-        context.drawItemInSlot(textRenderer, stack, itemX, itemY);
+        context.drawStackOverlay(textRenderer, stack, itemX, itemY);
       }
     }
   }
@@ -95,8 +97,15 @@ public class MockInGameHud {
     int progress = (int) (MOCK_XP_PROGRESS * (HOTBAR_WIDTH + 1f));
 
     RenderSystem.enableBlend();
-    context.drawGuiTexture(EXPERIENCE_BAR_BACKGROUND_TEXTURE, x, y, HOTBAR_WIDTH, XP_BAR_HEIGHT);
-    context.drawGuiTexture(EXPERIENCE_BAR_PROGRESS_TEXTURE,
+    context.drawGuiTexture(RenderLayer::getGuiTextured,
+        EXPERIENCE_BAR_BACKGROUND_TEXTURE,
+        x,
+        y,
+        HOTBAR_WIDTH,
+        XP_BAR_HEIGHT
+    );
+    context.drawGuiTexture(RenderLayer::getGuiTextured,
+        EXPERIENCE_BAR_PROGRESS_TEXTURE,
         HOTBAR_WIDTH,
         XP_BAR_HEIGHT,
         0,
@@ -171,8 +180,8 @@ public class MockInGameHud {
         icon = half;
       }
 
-      context.drawGuiTexture(empty, x + offset, y, ICON_SIZE, ICON_SIZE);
-      context.drawGuiTexture(icon, x + offset, y, ICON_SIZE, ICON_SIZE);
+      context.drawGuiTexture(RenderLayer::getGuiTextured, empty, x + offset, y, ICON_SIZE, ICON_SIZE);
+      context.drawGuiTexture(RenderLayer::getGuiTextured, icon, x + offset, y, ICON_SIZE, ICON_SIZE);
     }
     RenderSystem.disableBlend();
   }
