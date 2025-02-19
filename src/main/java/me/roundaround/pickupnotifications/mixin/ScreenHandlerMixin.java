@@ -1,5 +1,7 @@
 package me.roundaround.pickupnotifications.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.HasServerPlayer;
@@ -16,7 +18,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ScreenHandler.class)
@@ -66,7 +67,7 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
     this.pauseNotifications = true;
   }
 
-  @Redirect(
+  @WrapOperation(
       method = "internalOnSlotClick", at = @At(
       value = "INVOKE",
       target = "net/minecraft/screen/ScreenHandler.quickMove(Lnet/minecraft/entity/player/PlayerEntity;I)" +
@@ -74,14 +75,12 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
   )
   )
   public ItemStack wrapTransferSlot(
-      ScreenHandler self, PlayerEntity player, int slotIndex
+      ScreenHandler self, PlayerEntity player, int slotIndex, Operation<ItemStack> original
   ) {
-    ItemStack result = self.quickMove(player, slotIndex);
-
+    ItemStack result = original.call(self, player, slotIndex);
     if (!result.isEmpty()) {
       this.quickCraftItems.add(result.copy());
     }
-
     return result;
   }
 
