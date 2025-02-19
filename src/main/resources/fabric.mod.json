@@ -29,6 +29,13 @@
   "mixins": [
     "pickupnotifications.mixins.json"
   ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1703": [
+        "me/roundaround/pickupnotifications/util/ScreenHandlerExtensions"
+      ]
+    }
+  },
   "depends": {
     "fabricloader": "*",
     "fabric-api": "*",

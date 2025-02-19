@@ -3,10 +3,9 @@ package me.roundaround.pickupnotifications.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.roundaround.pickupnotifications.server.networking.ServerNetworking;
-import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
-import me.roundaround.pickupnotifications.util.HasServerPlayer;
 import me.roundaround.pickupnotifications.util.InventorySnapshot;
+import me.roundaround.pickupnotifications.util.ScreenHandlerExtensions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
@@ -24,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ScreenHandler.class)
-public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegisterScreenCloseItems {
+public abstract class ScreenHandlerMixin implements ScreenHandlerExtensions {
   @Unique
   private ServerPlayerEntity player;
   @Unique

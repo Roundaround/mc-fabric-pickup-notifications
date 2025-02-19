@@ -1,6 +1,5 @@
 package me.roundaround.pickupnotifications.mixin;
 
-import me.roundaround.pickupnotifications.util.HasServerPlayer;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,9 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerPlayerEntityMixin {
   @Inject(method = "onScreenHandlerOpened", at = @At(value = "HEAD"))
   public void onScreenHandlerOpened(ScreenHandler screenHandler, CallbackInfo info) {
-    if (screenHandler instanceof HasServerPlayer handler) {
-      handler.pickupnotifications$setPlayer(this.self());
-    }
+    screenHandler.pickupnotifications$setPlayer(this.self());
   }
 
   @Unique

@@ -1,6 +1,5 @@
 package me.roundaround.pickupnotifications.mixin;
 
-import me.roundaround.pickupnotifications.util.CanRegisterScreenCloseItems;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -24,8 +23,6 @@ public abstract class PlayerInventoryMixin {
       return;
     }
 
-    if (this.player.playerScreenHandler instanceof CanRegisterScreenCloseItems handler) {
-      handler.pickupnotifications$registerScreenCloseReturns(stack.copy());
-    }
+    this.player.playerScreenHandler.pickupnotifications$registerScreenCloseReturns(stack.copy());
   }
 }
