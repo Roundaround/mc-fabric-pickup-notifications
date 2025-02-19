@@ -7,7 +7,6 @@ import me.roundaround.pickupnotifications.util.InventorySnapshot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.collection.DefaultedList;
@@ -42,12 +41,6 @@ public abstract class ScreenHandlerMixin implements HasServerPlayer, CanRegister
 
   @Shadow
   private ItemStack previousCursorStack;
-
-  @Shadow
-  public abstract Slot getSlot(int index);
-
-  @Shadow
-  public abstract ItemStack getCursorStack();
 
   @Override
   public void setPlayer(ServerPlayerEntity player) {
