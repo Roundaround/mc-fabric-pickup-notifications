@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.item.ItemStack;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -17,9 +18,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PickupNotificationsHud {
   private static final PickupNotificationsHud INSTANCE = new PickupNotificationsHud();
 
-  private final CopyOnWriteArrayList<PickupNotificationLine> CURRENTLY_SHOWN_NOTIFICATIONS =
-      new CopyOnWriteArrayList<>();
-  private final ConcurrentLinkedDeque<PickupNotificationLine> NOTIFICATION_QUEUE = new ConcurrentLinkedDeque<>();
+  private final CopyOnWriteArrayList<PickupNotificationLine> currentlyShownNotifications = new CopyOnWriteArrayList<>();
+  private final ConcurrentLinkedDeque<PickupNotificationLine> notificationQueue = new ConcurrentLinkedDeque<>();
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
@@ -32,19 +32,19 @@ public class PickupNotificationsHud {
       return;
     }
 
-    if (CURRENTLY_SHOWN_NOTIFICATIONS.isEmpty()) {
+    if (this.currentlyShownNotifications.isEmpty()) {
       return;
     }
 
-    for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
+    for (PickupNotificationLine notification : this.currentlyShownNotifications) {
       notification.tick();
       if (notification.isExpired()) {
-        CURRENTLY_SHOWN_NOTIFICATIONS.remove(notification);
+        this.currentlyShownNotifications.remove(notification);
       }
     }
 
-    while (hasRoomForNewNotification()) {
-      PickupNotificationLine notification = NOTIFICATION_QUEUE.poll();
+    while (this.hasRoomForNewNotification()) {
+      PickupNotificationLine notification = this.notificationQueue.poll();
 
       // If NOTIFICATION_QUEUE is empty, notification will be null.
       if (notification == null) {
@@ -52,16 +52,16 @@ public class PickupNotificationsHud {
       }
 
       notification.pop();
-      CURRENTLY_SHOWN_NOTIFICATIONS.add(notification);
+      this.currentlyShownNotifications.add(notification);
     }
   }
 
-  private void render(DrawContext drawContext, float tickDelta) {
+  private void render(DrawContext drawCocontexttext, RenderTickCounter tickCounter) {
     if (!PickupNotificationsConfig.getInstance().modEnabled.getValue()) {
       return;
     }
 
-    if (CURRENTLY_SHOWN_NOTIFICATIONS.isEmpty()) {
+    if (this.currentlyShownNotifications.isEmpty()) {
       return;
     }
 
@@ -70,8 +70,8 @@ public class PickupNotificationsHud {
     }
 
     int i = 0;
-    for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
-      notification.render(drawContext, i++);
+    for (PickupNotificationLine notification : this.currentlyShownNotifications) {
+      notification.render(drawCocontexttext, i++);
     }
   }
 
@@ -81,7 +81,7 @@ public class PickupNotificationsHud {
         stack.copy() :
         new ItemStack(stack.getItem(), stack.getCount());
 
-    for (PickupNotificationLine notification : CURRENTLY_SHOWN_NOTIFICATIONS) {
+    for (PickupNotificationLine notification : this.currentlyShownNotifications) {
       if (notification.attemptAdd(pickedUp)) {
         mergedIntoExisting = true;
         notification.pop();
@@ -90,7 +90,7 @@ public class PickupNotificationsHud {
     }
 
     if (!mergedIntoExisting) {
-      for (PickupNotificationLine notification : NOTIFICATION_QUEUE) {
+      for (PickupNotificationLine notification : this.notificationQueue) {
         if (notification.attemptAdd(pickedUp)) {
           mergedIntoExisting = true;
           break;
@@ -100,16 +100,17 @@ public class PickupNotificationsHud {
 
     if (!mergedIntoExisting) {
       PickupNotificationLine notification = new PickupNotificationLine(pickedUp);
-      if (NOTIFICATION_QUEUE.isEmpty() && hasRoomForNewNotification()) {
+      if (this.notificationQueue.isEmpty() && this.hasRoomForNewNotification()) {
         notification.pop();
-        CURRENTLY_SHOWN_NOTIFICATIONS.add(notification);
+        this.currentlyShownNotifications.add(notification);
       } else {
-        NOTIFICATION_QUEUE.add(notification);
+        this.notificationQueue.add(notification);
       }
     }
   }
 
   private boolean hasRoomForNewNotification() {
-    return CURRENTLY_SHOWN_NOTIFICATIONS.size() < PickupNotificationsConfig.getInstance().maxNotifications.getValue();
+    return this.currentlyShownNotifications.size() <
+           PickupNotificationsConfig.getInstance().maxNotifications.getValue();
   }
 }

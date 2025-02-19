@@ -35,19 +35,20 @@ public class MockInGameHud {
   private static final int MOCK_ARMOR = 7;
   private static final int MOCK_FOOD = 19;
 
-  private static final Identifier HOTBAR_TEXTURE = new Identifier("hud/hotbar");
-  private static final Identifier HOTBAR_SELECTION_TEXTURE = new Identifier("hud/hotbar_selection");
-  private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = new Identifier("hud/experience_bar_background");
-  private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = new Identifier("hud/experience_bar_progress");
-  private static final Identifier ARMOR_EMPTY_TEXTURE = new Identifier("hud/armor_empty");
-  private static final Identifier ARMOR_HALF_TEXTURE = new Identifier("hud/armor_half");
-  private static final Identifier ARMOR_FULL_TEXTURE = new Identifier("hud/armor_full");
-  private static final Identifier FOOD_EMPTY_TEXTURE = new Identifier("hud/food_empty");
-  private static final Identifier FOOD_HALF_TEXTURE = new Identifier("hud/food_half");
-  private static final Identifier FOOD_FULL_TEXTURE = new Identifier("hud/food_full");
-  private static final Identifier HEART_FULL_TEXTURE = new Identifier("hud/heart/hardcore_full");
-  private static final Identifier HEART_HALF_TEXTURE = new Identifier("hud/heart/hardcore_half");
-  private static final Identifier HEART_EMPTY_TEXTURE = new Identifier("hud/heart/container_hardcore");
+  private static final Identifier HOTBAR_TEXTURE = Identifier.ofVanilla("hud/hotbar");
+  private static final Identifier HOTBAR_SELECTION_TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
+  private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.ofVanilla(
+      "hud/experience_bar_background");
+  private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = Identifier.ofVanilla("hud/experience_bar_progress");
+  private static final Identifier ARMOR_EMPTY_TEXTURE = Identifier.ofVanilla("hud/armor_empty");
+  private static final Identifier ARMOR_HALF_TEXTURE = Identifier.ofVanilla("hud/armor_half");
+  private static final Identifier ARMOR_FULL_TEXTURE = Identifier.ofVanilla("hud/armor_full");
+  private static final Identifier FOOD_EMPTY_TEXTURE = Identifier.ofVanilla("hud/food_empty");
+  private static final Identifier FOOD_HALF_TEXTURE = Identifier.ofVanilla("hud/food_half");
+  private static final Identifier FOOD_FULL_TEXTURE = Identifier.ofVanilla("hud/food_full");
+  private static final Identifier HEART_FULL_TEXTURE = Identifier.ofVanilla("hud/heart/hardcore_full");
+  private static final Identifier HEART_HALF_TEXTURE = Identifier.ofVanilla("hud/heart/hardcore_half");
+  private static final Identifier HEART_EMPTY_TEXTURE = Identifier.ofVanilla("hud/heart/container_hardcore");
 
   private final TextRenderer textRenderer;
 
