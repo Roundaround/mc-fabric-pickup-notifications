@@ -1,12 +1,12 @@
 package me.roundaround.pickupnotifications.util;
 
+import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.stream.Collectors;
-
-import net.minecraft.item.ItemStack;
 
 public class InventorySnapshot implements Iterable<ItemStack> {
   private final HashMap<String, ArrayList<ItemStack>> internal = new HashMap<>();
@@ -18,12 +18,12 @@ public class InventorySnapshot implements Iterable<ItemStack> {
 
     String key = stack.getItem().getTranslationKey();
 
-    if (!internal.containsKey(key)) {
-      internal.put(key, new ArrayList<>());
+    if (!this.internal.containsKey(key)) {
+      this.internal.put(key, new ArrayList<>());
     }
 
     boolean merged = false;
-    for (ItemStack existing : internal.get(key)) {
+    for (ItemStack existing : this.internal.get(key)) {
       if (areItemStacksMergeable(existing, stack)) {
         existing.increment(stack.getCount());
         merged = true;
@@ -31,26 +31,26 @@ public class InventorySnapshot implements Iterable<ItemStack> {
     }
 
     if (!merged) {
-      internal.get(key).add(stack.copy());
+      this.internal.get(key).add(stack.copy());
     }
   }
 
   public void addAll(Iterable<ItemStack> stacks) {
     for (ItemStack stack : stacks) {
-      add(stack.copy());
+      this.add(stack.copy());
     }
   }
 
   public boolean isEmpty() {
-    return internal.isEmpty();
+    return this.internal.isEmpty();
   }
 
   public void clear() {
-    internal.clear();
+    this.internal.clear();
   }
 
   public int size() {
-    return internal.values().stream().mapToInt(ArrayList::size).sum();
+    return this.internal.values().stream().mapToInt(ArrayList::size).sum();
   }
 
   public int getCount(ItemStack source) {
@@ -60,11 +60,11 @@ public class InventorySnapshot implements Iterable<ItemStack> {
 
     String key = source.getItem().getTranslationKey();
 
-    if (!internal.containsKey(key)) {
+    if (!this.internal.containsKey(key)) {
       return 0;
     }
 
-    for (ItemStack stack : internal.get(key)) {
+    for (ItemStack stack : this.internal.get(key)) {
       if (areItemStacksMergeable(stack, source)) {
         return stack.getCount();
       }
@@ -80,11 +80,11 @@ public class InventorySnapshot implements Iterable<ItemStack> {
 
     String key = source.getItem().getTranslationKey();
 
-    if (!internal.containsKey(key)) {
+    if (!this.internal.containsKey(key)) {
       return 0;
     }
 
-    ArrayList<ItemStack> stacks = internal.get(key);
+    ArrayList<ItemStack> stacks = this.internal.get(key);
     int index = -1;
     int count = 0;
 
@@ -123,12 +123,8 @@ public class InventorySnapshot implements Iterable<ItemStack> {
   }
 
   @Override
-  public Iterator<ItemStack> iterator() {
-    return internal.values()
-        .stream()
-        .flatMap(Collection::stream)
-        .toList()
-        .iterator();
+  public @NotNull Iterator<ItemStack> iterator() {
+    return this.internal.values().stream().flatMap(Collection::stream).toList().iterator();
   }
 
   public static boolean areItemStacksMergeable(ItemStack a, ItemStack b) {
