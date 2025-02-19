@@ -1,4 +1,4 @@
-package me.roundaround.pickupnotifications.client.networking;
+package me.roundaround.pickupnotifications.client.network;
 
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
 import me.roundaround.pickupnotifications.network.Networking;

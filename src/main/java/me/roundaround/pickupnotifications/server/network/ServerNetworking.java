@@ -1,4 +1,4 @@
-package me.roundaround.pickupnotifications.server.networking;
+package me.roundaround.pickupnotifications.server.network;
 
 import me.roundaround.pickupnotifications.network.Networking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

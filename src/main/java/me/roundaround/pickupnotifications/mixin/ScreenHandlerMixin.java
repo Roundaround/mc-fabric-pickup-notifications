@@ -2,7 +2,7 @@ package me.roundaround.pickupnotifications.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import me.roundaround.pickupnotifications.server.networking.ServerNetworking;
+import me.roundaround.pickupnotifications.server.network.ServerNetworking;
 import me.roundaround.pickupnotifications.util.CheckForNewItems;
 import me.roundaround.pickupnotifications.util.InventorySnapshot;
 import me.roundaround.pickupnotifications.util.ScreenHandlerExtensions;
