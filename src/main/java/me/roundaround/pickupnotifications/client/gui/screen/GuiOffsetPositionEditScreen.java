@@ -3,13 +3,13 @@ package me.roundaround.pickupnotifications.client.gui.screen;
 import me.roundaround.pickupnotifications.client.gui.hud.MockInGameHud;
 import me.roundaround.pickupnotifications.client.gui.hud.PickupNotificationLine;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.client.gui.screen.ConfigScreen;
-import me.roundaround.roundalib.client.gui.screen.PositionEditScreen;
-import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
-import me.roundaround.roundalib.config.option.PositionConfigOption;
-import me.roundaround.roundalib.config.value.GuiAlignment;
-import me.roundaround.roundalib.config.value.Position;
+import me.roundaround.pickupnotifications.roundalib.client.gui.screen.ConfigScreen;
+import me.roundaround.pickupnotifications.roundalib.client.gui.screen.PositionEditScreen;
+import me.roundaround.pickupnotifications.roundalib.client.gui.util.GuiUtil;
+import me.roundaround.pickupnotifications.roundalib.client.gui.widget.config.SubScreenControl;
+import me.roundaround.pickupnotifications.roundalib.config.option.PositionConfigOption;
+import me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment;
+import me.roundaround.pickupnotifications.roundalib.config.value.Position;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static me.roundaround.roundalib.config.value.Position.Direction;
+import static me.roundaround.pickupnotifications.roundalib.config.value.Position.Direction;
 
 public class GuiOffsetPositionEditScreen extends PositionEditScreen {
   private static final Map<Direction, Direction> OPPOSITE_DIRECTIONS = Map.of(

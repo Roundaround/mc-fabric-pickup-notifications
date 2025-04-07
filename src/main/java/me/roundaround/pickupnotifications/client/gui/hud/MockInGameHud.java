@@ -1,6 +1,5 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
@@ -18,7 +17,8 @@ public class MockInGameHud {
   private static final int SELECTION_WIDTH = 24;
   private static final int SELECTION_HEIGHT = 23;
   private static final int MOCK_SELECTED_SLOT = 2;
-  private static final Inventory MOCK_INVENTORY = new SimpleInventory(new ItemStack(Items.DIAMOND_SWORD),
+  private static final Inventory MOCK_INVENTORY = new SimpleInventory(
+      new ItemStack(Items.DIAMOND_SWORD),
       new ItemStack(Items.BOW),
       new ItemStack(Items.NETHERITE_AXE),
       new ItemStack(Items.NETHERITE_PICKAXE),
@@ -68,16 +68,15 @@ public class MockInGameHud {
     int x = getHotbarLeft(context);
     int y = getHotbarTop(context);
 
-    RenderSystem.enableBlend();
     context.drawGuiTexture(RenderLayer::getGuiTextured, HOTBAR_TEXTURE, x, y, HOTBAR_WIDTH, HOTBAR_HEIGHT);
-    context.drawGuiTexture(RenderLayer::getGuiTextured,
+    context.drawGuiTexture(
+        RenderLayer::getGuiTextured,
         HOTBAR_SELECTION_TEXTURE,
         x - 1 + MOCK_SELECTED_SLOT * SLOT_SIZE,
         y - 1,
         SELECTION_WIDTH,
         SELECTION_HEIGHT
     );
-    RenderSystem.disableBlend();
 
     for (int slot = 0; slot < 9; slot++) {
       ItemStack stack = MOCK_INVENTORY.getStack(slot);
@@ -96,15 +95,16 @@ public class MockInGameHud {
     int y = getExperienceBarTop(context);
     int progress = (int) (MOCK_XP_PROGRESS * (HOTBAR_WIDTH + 1f));
 
-    RenderSystem.enableBlend();
-    context.drawGuiTexture(RenderLayer::getGuiTextured,
+    context.drawGuiTexture(
+        RenderLayer::getGuiTextured,
         EXPERIENCE_BAR_BACKGROUND_TEXTURE,
         x,
         y,
         HOTBAR_WIDTH,
         XP_BAR_HEIGHT
     );
-    context.drawGuiTexture(RenderLayer::getGuiTextured,
+    context.drawGuiTexture(
+        RenderLayer::getGuiTextured,
         EXPERIENCE_BAR_PROGRESS_TEXTURE,
         HOTBAR_WIDTH,
         XP_BAR_HEIGHT,
@@ -115,7 +115,6 @@ public class MockInGameHud {
         progress,
         XP_BAR_HEIGHT
     );
-    RenderSystem.disableBlend();
   }
 
   private static void renderExperienceLevel(DrawContext context, TextRenderer textRenderer) {
@@ -130,7 +129,8 @@ public class MockInGameHud {
   }
 
   private static void renderStatusBars(DrawContext context) {
-    renderStatusBar(context,
+    renderStatusBar(
+        context,
         getHotbarLeft(context),
         getLowerStatusRowTop(context),
         HEART_EMPTY_TEXTURE,
@@ -139,7 +139,8 @@ public class MockInGameHud {
         MOCK_HEALTH,
         false
     );
-    renderStatusBar(context,
+    renderStatusBar(
+        context,
         getHotbarRight(context),
         getLowerStatusRowTop(context),
         FOOD_EMPTY_TEXTURE,
@@ -148,7 +149,8 @@ public class MockInGameHud {
         MOCK_FOOD,
         true
     );
-    renderStatusBar(context,
+    renderStatusBar(
+        context,
         getHotbarLeft(context),
         getUpperStatusRowTop(context),
         ARMOR_EMPTY_TEXTURE,
@@ -169,7 +171,6 @@ public class MockInGameHud {
       int scaledValue,
       boolean inverted
   ) {
-    RenderSystem.enableBlend();
     for (int index = 0; index < 10; index++) {
       int offset = inverted ? -(index + 1) * (ICON_SIZE - 1) : index * (ICON_SIZE - 1);
 
@@ -183,7 +184,6 @@ public class MockInGameHud {
       context.drawGuiTexture(RenderLayer::getGuiTextured, empty, x + offset, y, ICON_SIZE, ICON_SIZE);
       context.drawGuiTexture(RenderLayer::getGuiTextured, icon, x + offset, y, ICON_SIZE, ICON_SIZE);
     }
-    RenderSystem.disableBlend();
   }
 
   private static int getCenteredLeft(DrawContext context, int width) {

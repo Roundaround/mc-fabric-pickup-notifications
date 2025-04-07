@@ -1,6 +1,6 @@
 package me.roundaround.pickupnotifications.config;
 
-import me.roundaround.roundalib.config.value.EnumValue;
+import me.roundaround.pickupnotifications.roundalib.config.value.EnumValue;
 
 import java.util.Arrays;
 

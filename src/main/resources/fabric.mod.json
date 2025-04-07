@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "pickupnotifications",
+  "id": "${modId}",
   "version": "${version}",
   "name": "Pickup Notifications",
-  "description": "Show notifications on item pickup.\n${library}",
+  "description": "Show notifications on item pickup.",
   "authors": [
     "Roundaround"
   ],
@@ -12,33 +12,5 @@
     "sources": "https://github.com/Roundaround/mc-fabric-pickup-notifications",
     "issues": "https://github.com/Roundaround/mc-fabric-pickup-notifications/issues"
   },
-  "license": "MIT",
-  "icon": "assets/pickupnotifications/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "me.roundaround.pickupnotifications.PickupNotificationsMod"
-    ],
-    "client": [
-      "me.roundaround.pickupnotifications.client.PickupNotificationsClientMod"
-    ],
-    "modmenu": [
-      "me.roundaround.pickupnotifications.compat.modmenu.ModMenuImpl"
-    ]
-  },
-  "mixins": [
-    "pickupnotifications.mixins.json"
-  ],
-  "custom": {
-    "loom:injected_interfaces": {
-      "net/minecraft/class_1703": [
-        "me/roundaround/pickupnotifications/util/ScreenHandlerExtensions"
-      ]
-    }
-  },
-  "depends": {
-    "fabricloader": "*",
-    "fabric-api": "*",
-    "minecraft": "1.21.*"
-  }
+  "license": "MIT"
 }

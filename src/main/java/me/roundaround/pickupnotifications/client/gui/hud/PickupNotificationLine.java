@@ -1,11 +1,10 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import me.roundaround.roundalib.client.gui.GuiUtil;
-import me.roundaround.roundalib.config.value.GuiAlignment;
-import me.roundaround.roundalib.config.value.Position;
+import me.roundaround.pickupnotifications.roundalib.client.gui.util.GuiUtil;
+import me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment;
+import me.roundaround.pickupnotifications.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -18,8 +17,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
-import static me.roundaround.roundalib.config.value.GuiAlignment.AlignmentX;
-import static me.roundaround.roundalib.config.value.GuiAlignment.AlignmentY;
+import static me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentX;
+import static me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentY;
 
 public class PickupNotificationLine {
   public static final int SHOW_DURATION = 120;
@@ -42,18 +41,18 @@ public class PickupNotificationLine {
   }
 
   public PickupNotificationLine(ItemStack initialItems, boolean timeless) {
-    stack = initialItems.copy();
+    this.stack = initialItems.copy();
     this.timeless = timeless;
-    client = MinecraftClient.getInstance();
-    originalTimeRemaining = SHOW_DURATION;
-    timeRemaining = SHOW_DURATION;
+    this.client = MinecraftClient.getInstance();
+    this.originalTimeRemaining = SHOW_DURATION;
+    this.timeRemaining = SHOW_DURATION;
   }
 
   public void tick() {
-    timeRemaining--;
-    originalTimeRemaining--;
-    popTimeRemaining--;
-    lastTick = Util.getMeasuringTimeMs();
+    this.timeRemaining--;
+    this.originalTimeRemaining--;
+    this.popTimeRemaining--;
+    this.lastTick = Util.getMeasuringTimeMs();
   }
 
   public void render(DrawContext context, int idx) {
@@ -65,8 +64,8 @@ public class PickupNotificationLine {
     float x = alignment.getPosX() + offset.x() * alignment.getOffsetMultiplierX();
     float y = alignment.getPosY() + offset.y() * alignment.getOffsetMultiplierY();
 
-    MutableText text = getFormattedDisplayString(config);
-    TextRenderer textRenderer = client.textRenderer;
+    MutableText text = this.getFormattedDisplayString(config);
+    TextRenderer textRenderer = this.client.textRenderer;
 
     int spriteSize = textRenderer.fontHeight + 1;
     int textWidth = textRenderer.getWidth(text);
@@ -83,13 +82,13 @@ public class PickupNotificationLine {
       yAdjust = -textRenderer.fontHeight - 2;
     }
 
-    xAdjust -= fullWidth * getXOffsetPercent() * alignment.getOffsetMultiplierX();
+    xAdjust -= fullWidth * this.getXOffsetPercent() * alignment.getOffsetMultiplierX();
     yAdjust += idx * (textRenderer.fontHeight + 2) * alignment.getOffsetMultiplierY();
 
     x += xAdjust * scale;
     y += yAdjust * scale;
 
-    renderBackgroundAndText(context, idx, x, y, fullWidth);
+    this.renderBackgroundAndText(context, idx, x, y, fullWidth);
   }
 
   private void renderBackgroundAndText(DrawContext context, int idx, float x, float y, int totalWidth) {
@@ -97,8 +96,8 @@ public class PickupNotificationLine {
     boolean rightAligned = this.isRightAligned();
     float scale = config.guiScale.getPendingValue();
 
-    MutableText text = getFormattedDisplayString(config);
-    TextRenderer textRenderer = client.textRenderer;
+    MutableText text = this.getFormattedDisplayString(config);
+    TextRenderer textRenderer = this.client.textRenderer;
 
     int height = textRenderer.fontHeight + 1;
     int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + height;
@@ -109,7 +108,8 @@ public class PickupNotificationLine {
     matrixStack.scale(scale, scale, 1);
 
     if (config.renderBackground.getPendingValue()) {
-      context.fill(-1,
+      context.fill(
+          -1,
           -1,
           totalWidth,
           height,
@@ -120,13 +120,11 @@ public class PickupNotificationLine {
     {
       matrixStack.push();
       matrixStack.translate(leftPad, 0, 0);
-      RenderSystem.enableBlend();
       context.drawText(textRenderer, text, 0, 1, GuiUtil.LABEL_COLOR, config.renderShadow.getPendingValue());
-      RenderSystem.disableBlend();
       matrixStack.pop();
     }
 
-    renderItem(context, height, rightAligned, totalWidth);
+    this.renderItem(context, height, rightAligned, totalWidth);
 
     matrixStack.pop();
   }
@@ -180,7 +178,7 @@ public class PickupNotificationLine {
   }
 
   public boolean attemptAdd(ItemStack addition) {
-    if (isExpired()) {
+    if (this.isExpired()) {
       return false;
     }
 

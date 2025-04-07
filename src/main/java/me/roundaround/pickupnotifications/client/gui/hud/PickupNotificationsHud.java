@@ -2,14 +2,17 @@ package me.roundaround.pickupnotifications.client.gui.hud;
 
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.event.ItemPickupCallback;
+import me.roundaround.pickupnotifications.generated.Constants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -23,7 +26,11 @@ public class PickupNotificationsHud {
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
-    HudRenderCallback.EVENT.register(INSTANCE::render);
+    HudLayerRegistrationCallback.EVENT.register((layeredDrawer) -> layeredDrawer.attachLayerAfter(
+        IdentifiedLayer.EXPERIENCE_LEVEL,
+        Identifier.of(Constants.MOD_ID, Constants.MOD_ID),
+        INSTANCE::render
+    ));
     ItemPickupCallback.EVENT.register(INSTANCE::handleItemPickedUp);
   }
 
@@ -56,7 +63,7 @@ public class PickupNotificationsHud {
     }
   }
 
-  private void render(DrawContext drawCocontexttext, RenderTickCounter tickCounter) {
+  private void render(DrawContext context, RenderTickCounter tickCounter) {
     if (!PickupNotificationsConfig.getInstance().modEnabled.getValue()) {
       return;
     }
@@ -71,7 +78,7 @@ public class PickupNotificationsHud {
 
     int i = 0;
     for (PickupNotificationLine notification : this.currentlyShownNotifications) {
-      notification.render(drawCocontexttext, i++);
+      notification.render(context, i++);
     }
   }
 

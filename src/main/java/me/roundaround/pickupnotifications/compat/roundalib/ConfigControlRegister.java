@@ -3,10 +3,10 @@ package me.roundaround.pickupnotifications.compat.roundalib;
 import me.roundaround.pickupnotifications.client.gui.screen.GuiOffsetPositionEditScreen;
 import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import me.roundaround.roundalib.client.gui.widget.config.ControlRegistry;
-import me.roundaround.roundalib.client.gui.widget.config.SubScreenControl;
-import me.roundaround.roundalib.config.option.PositionConfigOption;
-import me.roundaround.roundalib.config.value.Position;
+import me.roundaround.pickupnotifications.roundalib.client.gui.widget.config.ControlRegistry;
+import me.roundaround.pickupnotifications.roundalib.client.gui.widget.config.SubScreenControl;
+import me.roundaround.pickupnotifications.roundalib.config.option.PositionConfigOption;
+import me.roundaround.pickupnotifications.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 
 public class ConfigControlRegister {
@@ -28,7 +28,10 @@ public class ConfigControlRegister {
   }
 
   private static SubScreenControl<Position, PositionConfigOption> guiOffsetEditScreenControlFactory(
-      MinecraftClient client, PositionConfigOption option, int width, int height
+      MinecraftClient client,
+      PositionConfigOption option,
+      int width,
+      int height
   ) {
     return new SubScreenControl<>(
         client,
