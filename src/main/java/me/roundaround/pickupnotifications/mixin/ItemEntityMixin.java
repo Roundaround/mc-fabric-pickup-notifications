@@ -20,7 +20,7 @@ public abstract class ItemEntityMixin {
   )
   public void onPlayerPickup(PlayerEntity player, CallbackInfo ci, @Local ItemStack stack) {
     if (player instanceof ServerPlayerEntity serverPlayer && !stack.isEmpty()) {
-      ServerNetworking.sendItemAdded(serverPlayer, stack);
+      ServerNetworking.sendItemPickup(serverPlayer, stack);
     }
   }
 }

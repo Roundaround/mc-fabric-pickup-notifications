@@ -15,6 +15,7 @@ public class PickupNotificationsConfig extends ModConfigImpl implements GameScop
   private static PickupNotificationsConfig instance;
 
   public BooleanConfigOption modEnabled;
+  public BooleanConfigOption trackExperience;
   public EnumConfigOption<GuiAlignment> guiAlignment;
   public PositionConfigOption guiOffset;
   public FloatConfigOption guiScale;
@@ -41,6 +42,11 @@ public class PickupNotificationsConfig extends ModConfigImpl implements GameScop
     this.modEnabled = this.register(BooleanConfigOption.builder(ConfigPath.of("modEnabled"))
         .setDefaultValue(true)
         .setComment("Simple toggle for the mod! Set to false to disable.")
+        .build());
+
+    this.trackExperience = this.register(BooleanConfigOption.yesNoBuilder(ConfigPath.of("trackExperience"))
+        .setDefaultValue(true)
+        .setComment("Whether to show notifications for experience orb pickups.")
         .build());
 
     this.guiAlignment = this.register(EnumConfigOption.builder(

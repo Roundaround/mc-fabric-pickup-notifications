@@ -8,19 +8,16 @@ import me.roundaround.pickupnotifications.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
 import static me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentX;
 import static me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentY;
 
-public class PickupNotificationLine {
+public abstract class PickupNotification<T> {
   public static final int SHOW_DURATION = 120;
   public static final int DURATION_INCREASE_ON_ADD = 60;
   public static final int POP_DURATION = 5;
@@ -28,34 +25,29 @@ public class PickupNotificationLine {
   public static final int ANIM_IN_FINISH_TIME = SHOW_DURATION - ANIM_DURATION;
   public static final int LEFT_PADDING = 1;
 
-  private final ItemStack stack;
-  private final boolean timeless;
-  private final MinecraftClient client;
-  private int originalTimeRemaining;
-  private int timeRemaining;
-  private int popTimeRemaining;
-  private long lastTick;
+  protected final boolean timeless;
+  protected final MinecraftClient client;
+  protected int originalTimeRemaining;
+  protected int timeRemaining;
+  protected int popTimeRemaining;
+  protected long lastTick;
 
-  public PickupNotificationLine(ItemStack initialItems) {
-    this(initialItems, false);
-  }
-
-  public PickupNotificationLine(ItemStack initialItems, boolean timeless) {
-    this.stack = initialItems.copy();
+  protected PickupNotification(boolean timeless) {
     this.timeless = timeless;
     this.client = MinecraftClient.getInstance();
     this.originalTimeRemaining = SHOW_DURATION;
     this.timeRemaining = SHOW_DURATION;
   }
 
-  public void tick() {
-    this.timeRemaining--;
-    this.originalTimeRemaining--;
-    this.popTimeRemaining--;
-    this.lastTick = Util.getMeasuringTimeMs();
-  }
+  protected abstract void renderIcon(DrawContext context, RenderTickCounter tickCounter);
 
-  public void render(DrawContext context, int idx) {
+  protected abstract Text getFormattedDisplayString(PickupNotificationsConfig config);
+
+  protected abstract boolean canAdd(Object value);
+
+  protected abstract void add(T value);
+
+  public void render(DrawContext context, RenderTickCounter tickCounter, int idx) {
     PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
     GuiAlignment alignment = config.guiAlignment.getPendingValue();
     Position offset = config.guiOffset.getPendingValue();
@@ -64,7 +56,7 @@ public class PickupNotificationLine {
     float x = alignment.getPosX() + offset.x() * alignment.getOffsetMultiplierX();
     float y = alignment.getPosY() + offset.y() * alignment.getOffsetMultiplierY();
 
-    MutableText text = this.getFormattedDisplayString(config);
+    Text text = this.getFormattedDisplayString(config);
     TextRenderer textRenderer = this.client.textRenderer;
 
     int spriteSize = textRenderer.fontHeight + 1;
@@ -88,15 +80,56 @@ public class PickupNotificationLine {
     x += xAdjust * scale;
     y += yAdjust * scale;
 
-    this.renderBackgroundAndText(context, idx, x, y, fullWidth);
+    this.renderBackgroundAndText(context, tickCounter, idx, x, y, fullWidth);
   }
 
-  private void renderBackgroundAndText(DrawContext context, int idx, float x, float y, int totalWidth) {
+  @SuppressWarnings("unchecked")
+  public boolean attemptAdd(Object addition) {
+    if (this.isExpired()) {
+      return false;
+    }
+
+    if (this.canAdd(addition)) {
+      this.add((T) addition);
+      return true;
+    }
+
+    return false;
+  }
+
+  public void extendTime() {
+    this.timeRemaining = Math.min(this.timeRemaining + DURATION_INCREASE_ON_ADD, SHOW_DURATION);
+    this.pop();
+  }
+
+  public void pop() {
+    this.popTimeRemaining = POP_DURATION;
+  }
+
+  public boolean isExpired() {
+    return this.timeRemaining <= 0;
+  }
+
+  public void tick() {
+    this.timeRemaining--;
+    this.originalTimeRemaining--;
+    this.popTimeRemaining--;
+    this.lastTick = Util.getMeasuringTimeMs();
+  }
+
+  protected void renderBackgroundAndText(
+      DrawContext context,
+      RenderTickCounter tickCounter,
+      int idx,
+      float x,
+      float y,
+      int totalWidth
+  ) {
     PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
     boolean rightAligned = this.isRightAligned();
     float scale = config.guiScale.getPendingValue();
 
-    MutableText text = this.getFormattedDisplayString(config);
+    Text text = this.getFormattedDisplayString(config);
     TextRenderer textRenderer = this.client.textRenderer;
 
     int height = textRenderer.fontHeight + 1;
@@ -124,12 +157,31 @@ public class PickupNotificationLine {
       matrixStack.pop();
     }
 
-    this.renderItem(context, height, rightAligned, totalWidth);
+    {
+      float partialPopTimeRemaining = this.popTimeRemaining - tickCounter.getTickProgress(false);
+
+      matrixStack.push();
+      matrixStack.translate(rightAligned ? totalWidth - LEFT_PADDING - height + 0.25f : LEFT_PADDING - 0.5f, -0.5f, 0);
+      matrixStack.scale(height / 16f, height / 16f, 1);
+
+      float popAmount = MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
+      float popScale = 1f + popAmount;
+
+      matrixStack.push();
+      matrixStack.translate(8, 12, 0);
+      matrixStack.scale(1f / popScale, (1f + popScale) / 2f, 1);
+      matrixStack.translate(-8, -12, 0);
+
+      this.renderIcon(context, tickCounter);
+
+      matrixStack.pop();
+      matrixStack.pop();
+    }
 
     matrixStack.pop();
   }
 
-  private boolean isRightAligned() {
+  protected boolean isRightAligned() {
     PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
     IconAlignment icon = config.iconAlignment.getPendingValue();
     if (icon == IconAlignment.RIGHT) {
@@ -142,67 +194,7 @@ public class PickupNotificationLine {
     };
   }
 
-  private void renderItem(DrawContext context, int size, boolean rightAligned, int totalWidth) {
-    MatrixStack matrixStack = context.getMatrices();
-
-    long renderTime = Util.getMeasuringTimeMs();
-
-    // 50ms per tick
-    float partialTick = MathHelper.clamp((renderTime - this.lastTick) / 50f, 0, 1);
-    float partialPopTimeRemaining = this.popTimeRemaining - partialTick;
-
-    matrixStack.push();
-    matrixStack.translate(rightAligned ? totalWidth - LEFT_PADDING - size + 0.25f : LEFT_PADDING - 0.5f, -0.5f, 0);
-    matrixStack.scale(size / 16f, size / 16f, 1);
-
-    float popAmount = MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
-    float popScale = 1f + popAmount;
-
-    matrixStack.push();
-    matrixStack.translate(8, 12, 0);
-    matrixStack.scale(1f / popScale, (1f + popScale) / 2f, 1);
-    matrixStack.translate(-8, -12, 0);
-
-    context.drawItemWithoutEntity(this.stack, 0, 0);
-
-    matrixStack.pop();
-    matrixStack.pop();
-  }
-
-  public void pop() {
-    this.popTimeRemaining = POP_DURATION;
-  }
-
-  public boolean isExpired() {
-    return this.timeRemaining <= 0;
-  }
-
-  public boolean attemptAdd(ItemStack addition) {
-    if (this.isExpired()) {
-      return false;
-    }
-
-    if (areItemStacksMergeable(this.stack, addition)) {
-      this.stack.increment(addition.getCount());
-      this.timeRemaining = Math.min(this.timeRemaining + DURATION_INCREASE_ON_ADD, SHOW_DURATION);
-      return true;
-    }
-
-    return false;
-  }
-
-  private MutableText getFormattedDisplayString(PickupNotificationsConfig config) {
-    MutableText name = Text.empty().append(this.stack.getName());
-    if (config.showUniqueInfo.getPendingValue()) {
-      name.formatted(this.stack.getRarity().getFormatting());
-      if (this.stack.get(DataComponentTypes.CUSTOM_NAME) != null) {
-        name.formatted(Formatting.ITALIC);
-      }
-    }
-    return Text.literal(this.stack.getCount() + "x ").append(name);
-  }
-
-  private float getXOffsetPercent() {
+  protected float getXOffsetPercent() {
     if (this.timeless) {
       return 0f;
     }
@@ -227,9 +219,5 @@ public class PickupNotificationLine {
       // Fully showing
       return 0f;
     }
-  }
-
-  private static boolean areItemStacksMergeable(ItemStack a, ItemStack b) {
-    return !a.isEmpty() && !b.isEmpty() && ItemStack.areItemsAndComponentsEqual(a, b);
   }
 }

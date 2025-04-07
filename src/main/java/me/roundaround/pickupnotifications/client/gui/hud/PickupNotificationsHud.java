@@ -1,7 +1,8 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import me.roundaround.pickupnotifications.event.ItemPickupCallback;
+import me.roundaround.pickupnotifications.event.ExperiencePickup;
+import me.roundaround.pickupnotifications.event.ItemPickup;
 import me.roundaround.pickupnotifications.generated.Constants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,13 +17,14 @@ import net.minecraft.util.Identifier;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class PickupNotificationsHud {
   private static final PickupNotificationsHud INSTANCE = new PickupNotificationsHud();
 
-  private final CopyOnWriteArrayList<PickupNotificationLine> currentlyShownNotifications = new CopyOnWriteArrayList<>();
-  private final ConcurrentLinkedDeque<PickupNotificationLine> notificationQueue = new ConcurrentLinkedDeque<>();
+  private final CopyOnWriteArrayList<PickupNotification<?>> currentlyShownNotifications = new CopyOnWriteArrayList<>();
+  private final ConcurrentLinkedDeque<PickupNotification<?>> notificationQueue = new ConcurrentLinkedDeque<>();
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
@@ -31,7 +33,8 @@ public class PickupNotificationsHud {
         Identifier.of(Constants.MOD_ID, Constants.MOD_ID),
         INSTANCE::render
     ));
-    ItemPickupCallback.EVENT.register(INSTANCE::handleItemPickedUp);
+    ExperiencePickup.EVENT.register(INSTANCE::handleExperiencePickedUp);
+    ItemPickup.EVENT.register(INSTANCE::handleItemPickedUp);
   }
 
   private void tick(final MinecraftClient client) {
@@ -43,7 +46,7 @@ public class PickupNotificationsHud {
       return;
     }
 
-    for (PickupNotificationLine notification : this.currentlyShownNotifications) {
+    for (PickupNotification<?> notification : this.currentlyShownNotifications) {
       notification.tick();
       if (notification.isExpired()) {
         this.currentlyShownNotifications.remove(notification);
@@ -51,7 +54,7 @@ public class PickupNotificationsHud {
     }
 
     while (this.hasRoomForNewNotification()) {
-      PickupNotificationLine notification = this.notificationQueue.poll();
+      PickupNotification<?> notification = this.notificationQueue.poll();
 
       // If NOTIFICATION_QUEUE is empty, notification will be null.
       if (notification == null) {
@@ -77,28 +80,40 @@ public class PickupNotificationsHud {
     }
 
     int i = 0;
-    for (PickupNotificationLine notification : this.currentlyShownNotifications) {
-      notification.render(context, i++);
+    for (PickupNotification<?> notification : this.currentlyShownNotifications) {
+      notification.render(context, tickCounter, i++);
     }
   }
 
+  private void handleExperiencePickedUp(int amount) {
+    if (!PickupNotificationsConfig.getInstance().trackExperience.getValue()) {
+      return;
+    }
+
+    this.handlePickup(amount, ExperiencePickupNotification::new);
+  }
+
   private void handleItemPickedUp(ItemStack stack) {
-    boolean mergedIntoExisting = false;
     ItemStack pickedUp = PickupNotificationsConfig.getInstance().showUniqueInfo.getValue() ?
         stack.copy() :
         new ItemStack(stack.getItem(), stack.getCount());
+    this.handlePickup(pickedUp, ItemPickupNotification::new);
+  }
 
-    for (PickupNotificationLine notification : this.currentlyShownNotifications) {
-      if (notification.attemptAdd(pickedUp)) {
+  private <T> void handlePickup(T addition, Function<T, PickupNotification<T>> factory) {
+    boolean mergedIntoExisting = false;
+
+    for (PickupNotification<?> notification : this.currentlyShownNotifications) {
+      if (notification.attemptAdd(addition)) {
         mergedIntoExisting = true;
-        notification.pop();
+        notification.extendTime();
         break;
       }
     }
 
     if (!mergedIntoExisting) {
-      for (PickupNotificationLine notification : this.notificationQueue) {
-        if (notification.attemptAdd(pickedUp)) {
+      for (PickupNotification<?> notification : this.notificationQueue) {
+        if (notification.attemptAdd(addition)) {
           mergedIntoExisting = true;
           break;
         }
@@ -106,7 +121,7 @@ public class PickupNotificationsHud {
     }
 
     if (!mergedIntoExisting) {
-      PickupNotificationLine notification = new PickupNotificationLine(pickedUp);
+      PickupNotification<T> notification = factory.apply(addition);
       if (this.notificationQueue.isEmpty() && this.hasRoomForNewNotification()) {
         notification.pop();
         this.currentlyShownNotifications.add(notification);

@@ -1,6 +1,7 @@
 {
   "pickupnotifications.config.title": "Pickup Notifications Config",
   "pickupnotifications.modEnabled.label": "Mod enabled",
+  "pickupnotifications.trackExperience.label": "Show notifications for experience orb pickups",
   "pickupnotifications.guiAlignment.label": "Notification alignment",
   "pickupnotifications.guiOffset.label": "Notification offset",
   "pickupnotifications.guiOffset.title": "Edit notification offset",

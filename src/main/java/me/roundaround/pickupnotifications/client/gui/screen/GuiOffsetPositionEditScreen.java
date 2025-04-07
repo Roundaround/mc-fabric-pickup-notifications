@@ -1,7 +1,9 @@
 package me.roundaround.pickupnotifications.client.gui.screen;
 
+import me.roundaround.pickupnotifications.client.gui.hud.ExperiencePickupNotification;
+import me.roundaround.pickupnotifications.client.gui.hud.ItemPickupNotification;
 import me.roundaround.pickupnotifications.client.gui.hud.MockInGameHud;
-import me.roundaround.pickupnotifications.client.gui.hud.PickupNotificationLine;
+import me.roundaround.pickupnotifications.client.gui.hud.PickupNotification;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.roundalib.client.gui.screen.ConfigScreen;
 import me.roundaround.pickupnotifications.roundalib.client.gui.screen.PositionEditScreen;
@@ -32,7 +34,7 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
       Direction.LEFT
   );
 
-  private final ArrayList<PickupNotificationLine> notifications = new ArrayList<>();
+  private final ArrayList<PickupNotification<?>> notifications = new ArrayList<>();
 
   private MockInGameHud inGameHud;
 
@@ -51,14 +53,24 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
     this.inGameHud = new MockInGameHud(this.textRenderer);
 
     this.notifications.clear();
-    this.notifications.add(new PickupNotificationLine(new ItemStack(Items.DIAMOND, 64), true));
-    this.notifications.add(new PickupNotificationLine(new ItemStack(Items.GOLDEN_APPLE, 16), true));
-    this.notifications.add(new PickupNotificationLine(new ItemStack(Items.ELYTRA), true));
+    this.notifications.add(new ItemPickupNotification(new ItemStack(Items.DIAMOND, 64), true));
+    this.notifications.add(new ItemPickupNotification(new ItemStack(Items.GOLDEN_APPLE, 16), true));
+    this.notifications.add(new ItemPickupNotification(new ItemStack(Items.ELYTRA), true));
+    this.notifications.add(new ExperiencePickupNotification(2500, true));
   }
 
   @Override
   protected void move(Direction direction) {
     super.move(translateMove(direction));
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+
+    for (PickupNotification<?> notification : this.notifications) {
+      notification.tick();
+    }
   }
 
   @Override
@@ -73,9 +85,13 @@ public class GuiOffsetPositionEditScreen extends PositionEditScreen {
         GuiUtil.LABEL_COLOR
     );
 
+    if (this.client == null) {
+      return;
+    }
+
     int i = 0;
-    for (PickupNotificationLine notification : this.notifications) {
-      notification.render(context, i++);
+    for (PickupNotification<?> notification : this.notifications) {
+      notification.render(context, this.client.getRenderTickCounter(), i++);
     }
   }
 
