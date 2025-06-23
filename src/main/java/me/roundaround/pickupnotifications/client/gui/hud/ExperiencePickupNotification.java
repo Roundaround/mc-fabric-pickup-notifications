@@ -2,8 +2,8 @@ package me.roundaround.pickupnotifications.client.gui.hud;
 
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.roundalib.client.gui.util.GuiUtil;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -46,7 +46,7 @@ public class ExperiencePickupNotification extends PickupNotification<Integer> {
     int color = GuiUtil.genColorInt(r, 1, b);
 
     context.drawTexture(
-        RenderLayer::getGuiTextured,
+        RenderPipelines.GUI_TEXTURED,
         TEXTURE,
         0,
         0,
@@ -58,8 +58,7 @@ public class ExperiencePickupNotification extends PickupNotification<Integer> {
         ICON_SIZE,
         TEXTURE_SIZE,
         TEXTURE_SIZE,
-        color
-    );
+        color);
   }
 
   @Override

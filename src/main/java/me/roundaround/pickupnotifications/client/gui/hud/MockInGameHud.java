@@ -1,8 +1,8 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
@@ -26,8 +26,7 @@ public class MockInGameHud {
       new ItemStack(Items.COOKED_PORKCHOP, 15),
       new ItemStack(Items.GOLDEN_APPLE, 3),
       ItemStack.EMPTY,
-      new ItemStack(Items.TORCH, 57)
-  );
+      new ItemStack(Items.TORCH, 57));
   private static final int XP_BAR_HEIGHT = 5;
   private static final int MOCK_XP_LEVEL = 14;
   private static final float MOCK_XP_PROGRESS = 0.7f;
@@ -68,15 +67,20 @@ public class MockInGameHud {
     int x = getHotbarLeft(context);
     int y = getHotbarTop(context);
 
-    context.drawGuiTexture(RenderLayer::getGuiTextured, HOTBAR_TEXTURE, x, y, HOTBAR_WIDTH, HOTBAR_HEIGHT);
     context.drawGuiTexture(
-        RenderLayer::getGuiTextured,
+        RenderPipelines.GUI_TEXTURED,
+        HOTBAR_TEXTURE,
+        x,
+        y,
+        HOTBAR_WIDTH,
+        HOTBAR_HEIGHT);
+    context.drawGuiTexture(
+        RenderPipelines.GUI_TEXTURED,
         HOTBAR_SELECTION_TEXTURE,
         x - 1 + MOCK_SELECTED_SLOT * SLOT_SIZE,
         y - 1,
         SELECTION_WIDTH,
-        SELECTION_HEIGHT
-    );
+        SELECTION_HEIGHT);
 
     for (int slot = 0; slot < 9; slot++) {
       ItemStack stack = MOCK_INVENTORY.getStack(slot);
@@ -96,15 +100,14 @@ public class MockInGameHud {
     int progress = (int) (MOCK_XP_PROGRESS * (HOTBAR_WIDTH + 1f));
 
     context.drawGuiTexture(
-        RenderLayer::getGuiTextured,
+        RenderPipelines.GUI_TEXTURED,
         EXPERIENCE_BAR_BACKGROUND_TEXTURE,
         x,
         y,
         HOTBAR_WIDTH,
-        XP_BAR_HEIGHT
-    );
+        XP_BAR_HEIGHT);
     context.drawGuiTexture(
-        RenderLayer::getGuiTextured,
+        RenderPipelines.GUI_TEXTURED,
         EXPERIENCE_BAR_PROGRESS_TEXTURE,
         HOTBAR_WIDTH,
         XP_BAR_HEIGHT,
@@ -113,8 +116,7 @@ public class MockInGameHud {
         x,
         y,
         progress,
-        XP_BAR_HEIGHT
-    );
+        XP_BAR_HEIGHT);
   }
 
   private static void renderExperienceLevel(DrawContext context, TextRenderer textRenderer) {
@@ -137,8 +139,7 @@ public class MockInGameHud {
         HEART_HALF_TEXTURE,
         HEART_FULL_TEXTURE,
         MOCK_HEALTH,
-        false
-    );
+        false);
     renderStatusBar(
         context,
         getHotbarRight(context),
@@ -147,8 +148,7 @@ public class MockInGameHud {
         FOOD_HALF_TEXTURE,
         FOOD_FULL_TEXTURE,
         MOCK_FOOD,
-        true
-    );
+        true);
     renderStatusBar(
         context,
         getHotbarLeft(context),
@@ -157,8 +157,7 @@ public class MockInGameHud {
         ARMOR_HALF_TEXTURE,
         ARMOR_FULL_TEXTURE,
         MOCK_ARMOR,
-        false
-    );
+        false);
   }
 
   private static void renderStatusBar(
@@ -169,8 +168,7 @@ public class MockInGameHud {
       Identifier half,
       Identifier full,
       int scaledValue,
-      boolean inverted
-  ) {
+      boolean inverted) {
     for (int index = 0; index < 10; index++) {
       int offset = inverted ? -(index + 1) * (ICON_SIZE - 1) : index * (ICON_SIZE - 1);
 
@@ -181,8 +179,20 @@ public class MockInGameHud {
         icon = half;
       }
 
-      context.drawGuiTexture(RenderLayer::getGuiTextured, empty, x + offset, y, ICON_SIZE, ICON_SIZE);
-      context.drawGuiTexture(RenderLayer::getGuiTextured, icon, x + offset, y, ICON_SIZE, ICON_SIZE);
+      context.drawGuiTexture(
+          RenderPipelines.GUI_TEXTURED,
+          empty,
+          x + offset,
+          y,
+          ICON_SIZE,
+          ICON_SIZE);
+      context.drawGuiTexture(
+          RenderPipelines.GUI_TEXTURED,
+          icon,
+          x + offset,
+          y,
+          ICON_SIZE,
+          ICON_SIZE);
     }
   }
 

@@ -1,5 +1,9 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
+
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.event.ExperiencePickup;
 import me.roundaround.pickupnotifications.event.ItemPickup;
@@ -7,17 +11,12 @@ import me.roundaround.pickupnotifications.generated.Constants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class PickupNotificationsHud {
@@ -28,11 +27,9 @@ public class PickupNotificationsHud {
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
-    HudLayerRegistrationCallback.EVENT.register((layeredDrawer) -> layeredDrawer.attachLayerAfter(
-        IdentifiedLayer.EXPERIENCE_LEVEL,
+    HudElementRegistry.addLast(
         Identifier.of(Constants.MOD_ID, Constants.MOD_ID),
-        INSTANCE::render
-    ));
+        INSTANCE::render);
     ExperiencePickup.EVENT.register(INSTANCE::handleExperiencePickedUp);
     ItemPickup.EVENT.register(INSTANCE::handleItemPickedUp);
   }
@@ -94,9 +91,8 @@ public class PickupNotificationsHud {
   }
 
   private void handleItemPickedUp(ItemStack stack) {
-    ItemStack pickedUp = PickupNotificationsConfig.getInstance().showUniqueInfo.getValue() ?
-        stack.copy() :
-        new ItemStack(stack.getItem(), stack.getCount());
+    ItemStack pickedUp = PickupNotificationsConfig.getInstance().showUniqueInfo.getValue() ? stack.copy()
+        : new ItemStack(stack.getItem(), stack.getCount());
     this.handlePickup(pickedUp, ItemPickupNotification::new);
   }
 
@@ -132,7 +128,7 @@ public class PickupNotificationsHud {
   }
 
   private boolean hasRoomForNewNotification() {
-    return this.currentlyShownNotifications.size() <
-           PickupNotificationsConfig.getInstance().maxNotifications.getValue();
+    return this.currentlyShownNotifications.size() < PickupNotificationsConfig.getInstance().maxNotifications
+        .getValue();
   }
 }

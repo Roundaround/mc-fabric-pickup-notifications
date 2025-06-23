@@ -9,19 +9,13 @@ import me.roundaround.pickupnotifications.roundalib.config.option.PositionConfig
 import me.roundaround.pickupnotifications.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 
-public class ConfigControlRegister {
-  private static final MinecraftClient client = MinecraftClient.getInstance();
-
-  private ConfigControlRegister() {
-  }
-
+public final class ConfigControlRegister {
   public static void init() {
     try {
       ControlRegistry.registerOptionList(IconAlignment.class);
       ControlRegistry.register(
           PickupNotificationsConfig.getInstance().guiOffset.getId(),
-          ConfigControlRegister::guiOffsetEditScreenControlFactory
-      );
+          ConfigControlRegister::guiOffsetEditScreenControlFactory);
     } catch (ControlRegistry.RegistrationException e) {
       // Deal with this later xD
     }
@@ -31,15 +25,16 @@ public class ConfigControlRegister {
       MinecraftClient client,
       PositionConfigOption option,
       int width,
-      int height
-  ) {
+      int height) {
     return new SubScreenControl<>(
         client,
         option,
         width,
         height,
         SubScreenControl.getValueDisplayMessageFactory(),
-        GuiOffsetPositionEditScreen.getSubScreenFactory()
-    );
+        GuiOffsetPositionEditScreen.getSubScreenFactory());
+  }
+
+  private ConfigControlRegister() {
   }
 }

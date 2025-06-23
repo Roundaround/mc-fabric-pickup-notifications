@@ -1,21 +1,21 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
+import org.joml.Matrix3x2fStack;
+
 import me.roundaround.pickupnotifications.config.IconAlignment;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.roundalib.client.gui.util.GuiUtil;
 import me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment;
+import me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentX;
+import me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentY;
 import me.roundaround.pickupnotifications.roundalib.config.value.Position;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
-
-import static me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentX;
-import static me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment.AlignmentY;
 
 public abstract class PickupNotification<T> {
   public static final int SHOW_DURATION = 120;
@@ -123,8 +123,7 @@ public abstract class PickupNotification<T> {
       int idx,
       float x,
       float y,
-      int totalWidth
-  ) {
+      int totalWidth) {
     PickupNotificationsConfig config = PickupNotificationsConfig.getInstance();
     boolean rightAligned = this.isRightAligned();
     float scale = config.guiScale.getPendingValue();
@@ -135,10 +134,12 @@ public abstract class PickupNotification<T> {
     int height = textRenderer.fontHeight + 1;
     int leftPad = rightAligned ? LEFT_PADDING : 2 * LEFT_PADDING + height;
 
-    MatrixStack matrixStack = context.getMatrices();
-    matrixStack.push();
-    matrixStack.translate(x, y, 800 + idx);
-    matrixStack.scale(scale, scale, 1);
+    context.createNewRootLayer();
+
+    Matrix3x2fStack matrices = context.getMatrices();
+    matrices.pushMatrix();
+    matrices.translate(x, y);
+    matrices.scale(scale, scale);
 
     if (config.renderBackground.getPendingValue()) {
       context.fill(
@@ -146,39 +147,38 @@ public abstract class PickupNotification<T> {
           -1,
           totalWidth,
           height,
-          GuiUtil.genColorInt(0, 0, 0, config.backgroundOpacity.getPendingValue())
-      );
+          GuiUtil.genColorInt(0, 0, 0, config.backgroundOpacity.getPendingValue()));
     }
 
     {
-      matrixStack.push();
-      matrixStack.translate(leftPad, 0, 0);
+      matrices.pushMatrix();
+      matrices.translate(leftPad, 0);
       context.drawText(textRenderer, text, 0, 1, GuiUtil.LABEL_COLOR, config.renderShadow.getPendingValue());
-      matrixStack.pop();
+      matrices.popMatrix();
     }
 
     {
       float partialPopTimeRemaining = this.popTimeRemaining - tickCounter.getTickProgress(false);
 
-      matrixStack.push();
-      matrixStack.translate(rightAligned ? totalWidth - LEFT_PADDING - height + 0.25f : LEFT_PADDING - 0.5f, -0.5f, 0);
-      matrixStack.scale(height / 16f, height / 16f, 1);
+      matrices.pushMatrix();
+      matrices.translate(rightAligned ? totalWidth - LEFT_PADDING - height + 0.25f : LEFT_PADDING - 0.5f, -0.5f);
+      matrices.scale(height / 16f, height / 16f);
 
       float popAmount = MathHelper.clamp(partialPopTimeRemaining, 0, 5) / 5f;
       float popScale = 1f + popAmount;
 
-      matrixStack.push();
-      matrixStack.translate(8, 12, 0);
-      matrixStack.scale(1f / popScale, (1f + popScale) / 2f, 1);
-      matrixStack.translate(-8, -12, 0);
+      matrices.pushMatrix();
+      matrices.translate(8, 12);
+      matrices.scale(1f / popScale, (1f + popScale) / 2f);
+      matrices.translate(-8, -12);
 
       this.renderIcon(context, tickCounter);
 
-      matrixStack.pop();
-      matrixStack.pop();
+      matrices.popMatrix();
+      matrices.popMatrix();
     }
 
-    matrixStack.pop();
+    matrices.popMatrix();
   }
 
   protected boolean isRightAligned() {
