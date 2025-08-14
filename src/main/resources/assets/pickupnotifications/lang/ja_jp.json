@@ -1,0 +1,19 @@
+{
+  "pickupnotifications.config.title": "アイテム取得の通知設定",
+  "pickupnotifications.modEnabled.label": "MODを有効化",
+  "pickupnotifications.trackExperience.label": "経験値オーブの取得通知を表示",
+  "pickupnotifications.guiAlignment.label": "通知の配置",
+  "pickupnotifications.guiOffset.label": "通知の表示位置",
+  "pickupnotifications.guiOffset.title": "通知の表示位置の編集",
+  "pickupnotifications.guiScale.label": "通知の表示スケール",
+  "pickupnotifications.maxNotifications.label": "表示する最大通知数",
+  "pickupnotifications.iconAlignment.label": "アイコンの配置",
+  "pickupnotifications.showUniqueInfo.label": "カスタム名、レア度、エンチャント効果を表示",
+  "pickupnotifications.renderBackground.label": "通知の背景を表示",
+  "pickupnotifications.backgroundOpacity.label": "通知背景の不透明度",
+  "pickupnotifications.renderShadow.label": "文字に影を付ける",
+  "pickupnotifications.iconAlignment.outside": "外側",
+  "pickupnotifications.iconAlignment.inside": "内側",
+  "pickupnotifications.iconAlignment.left": "左",
+  "pickupnotifications.iconAlignment.right": "右"
+}
