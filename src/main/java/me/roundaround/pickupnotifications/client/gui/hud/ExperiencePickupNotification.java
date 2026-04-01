@@ -1,19 +1,19 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import me.roundaround.pickupnotifications.roundalib.client.gui.util.GuiUtil;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import me.roundaround.roundalib.client.gui.util.GuiUtil;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 
 public class ExperiencePickupNotification extends PickupNotification<Integer> {
   private static final int ICON_SIZE = 16;
   private static final int TEXTURE_SIZE = 64;
-  private static final Identifier TEXTURE = Identifier.ofVanilla("textures/entity/experience_orb.png");
+  private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/experience/experience_orb.png");
 
   private int amount;
   private int age;
@@ -35,17 +35,17 @@ public class ExperiencePickupNotification extends PickupNotification<Integer> {
   }
 
   @Override
-  protected void renderIcon(DrawContext context, RenderTickCounter tickCounter) {
+  protected void renderIcon(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
     int index = this.getOrbSize();
     int u = index % 4 * ICON_SIZE;
     int v = index / 4 * ICON_SIZE;
 
-    float t = (this.age + tickCounter.getTickProgress(false)) / 2f;
-    float r = (MathHelper.sin(t) + 1) * 0.5f;
-    float b = (MathHelper.sin(t + (float) (Math.PI * 4 / 3)) + 1) * 0.1f;
+    float t = (this.age + tickCounter.getGameTimeDeltaPartialTick(false)) / 2f;
+    float r = (Mth.sin(t) + 1) * 0.5f;
+    float b = (Mth.sin(t + (float) (Math.PI * 4 / 3)) + 1) * 0.1f;
     int color = GuiUtil.genColorInt(r, 1, b);
 
-    context.drawTexture(
+    context.blit(
         RenderPipelines.GUI_TEXTURED,
         TEXTURE,
         0,
@@ -62,9 +62,9 @@ public class ExperiencePickupNotification extends PickupNotification<Integer> {
   }
 
   @Override
-  protected Text getFormattedDisplayString(PickupNotificationsConfig config) {
-    MutableText name = Text.translatable("subtitles.entity.experience_orb.pickup");
-    return Text.literal(this.amount + "x ").append(name);
+  protected Component getFormattedDisplayString(PickupNotificationsConfig config) {
+    MutableComponent name = Component.translatable("subtitles.entity.experience_orb.pickup");
+    return Component.literal(this.amount + "x ").append(name);
   }
 
   @Override

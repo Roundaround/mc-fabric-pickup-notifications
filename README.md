@@ -1,7 +1,7 @@
 ![Pickup Notifications](https://github.com/Roundaround/mc-fabric-pickup-notifications/raw/main/assets/title-round.png)
 
 ![](https://img.shields.io/badge/Loader-Fabric-313e51?style=for-the-badge)
-![](https://img.shields.io/badge/MC-1.21--1.21.6%20|%201.20%20|%201.19-313e51?style=for-the-badge)
+![](https://img.shields.io/badge/MC-26.1%20|%201.21%20|%201.20%20|%201.19-313e51?style=for-the-badge)
 ![](https://img.shields.io/badge/Side-Client%2BServer-313e51?style=for-the-badge)
 
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/pickup-notifications?style=flat&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/pickup-notifications)

@@ -1,13 +1,13 @@
 package me.roundaround.pickupnotifications.config;
 
 import me.roundaround.pickupnotifications.generated.Constants;
-import me.roundaround.pickupnotifications.roundalib.config.ConfigPath;
-import me.roundaround.pickupnotifications.roundalib.config.manage.ModConfigImpl;
-import me.roundaround.pickupnotifications.roundalib.config.manage.store.GameScopedFileStore;
-import me.roundaround.pickupnotifications.roundalib.config.option.*;
-import me.roundaround.pickupnotifications.roundalib.config.value.GuiAlignment;
-import me.roundaround.pickupnotifications.roundalib.config.value.Position;
-import me.roundaround.pickupnotifications.roundalib.nightconfig.core.Config;
+import me.roundaround.roundalib.config.ConfigPath;
+import me.roundaround.roundalib.config.io.ConfigDoc;
+import me.roundaround.roundalib.config.manage.ModConfigImpl;
+import me.roundaround.roundalib.config.manage.store.GameScopedFileStore;
+import me.roundaround.roundalib.config.option.*;
+import me.roundaround.roundalib.config.value.GuiAlignment;
+import me.roundaround.roundalib.config.value.Position;
 
 import java.util.Arrays;
 
@@ -120,7 +120,7 @@ public class PickupNotificationsConfig extends ModConfigImpl implements GameScop
   }
 
   @Override
-  public boolean performConfigUpdate(int version, Config config) {
+  public boolean performConfigUpdate(int version, ConfigDoc config) {
     if (version == 1) {
       config.set(
           "pickupnotifications.guiOffset",

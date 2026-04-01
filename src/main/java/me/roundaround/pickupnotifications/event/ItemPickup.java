@@ -2,7 +2,7 @@ package me.roundaround.pickupnotifications.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface ItemPickup {
   Event<ItemPickup> EVENT = EventFactory.createArrayBacked(

@@ -5,7 +5,7 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.roundaround.gradle.api.annotation.Entrypoint;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.generated.Constants;
-import me.roundaround.pickupnotifications.roundalib.client.gui.screen.ConfigScreen;
+import me.roundaround.roundalib.client.gui.screen.ConfigScreen;
 
 @Entrypoint(Entrypoint.MOD_MENU)
 public class ModMenuImpl implements ModMenuApi {

@@ -1,13 +1,13 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemPickupNotification extends PickupNotification<ItemStack> {
   private final ItemStack stack;
@@ -22,20 +22,20 @@ public class ItemPickupNotification extends PickupNotification<ItemStack> {
   }
 
   @Override
-  protected void renderIcon(DrawContext context, RenderTickCounter tickCounter) {
-    context.drawItemWithoutEntity(this.stack, 0, 0);
+  protected void renderIcon(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
+    context.fakeItem(this.stack, 0, 0);
   }
 
   @Override
-  protected Text getFormattedDisplayString(PickupNotificationsConfig config) {
-    MutableText name = Text.empty().append(this.stack.getName());
+  protected Component getFormattedDisplayString(PickupNotificationsConfig config) {
+    MutableComponent name = Component.empty().append(this.stack.getHoverName());
     if (config.showUniqueInfo.getPendingValue()) {
-      name.formatted(this.stack.getRarity().getFormatting());
-      if (this.stack.get(DataComponentTypes.CUSTOM_NAME) != null) {
-        name.formatted(Formatting.ITALIC);
+      name.withStyle(this.stack.getRarity().color());
+      if (this.stack.get(DataComponents.CUSTOM_NAME) != null) {
+        name.withStyle(ChatFormatting.ITALIC);
       }
     }
-    return Text.literal(this.stack.getCount() + "x ").append(name);
+    return Component.literal(this.stack.getCount() + "x ").append(name);
   }
 
   @Override
@@ -45,10 +45,10 @@ public class ItemPickupNotification extends PickupNotification<ItemStack> {
 
   @Override
   protected void add(ItemStack addition) {
-    this.stack.increment(addition.getCount());
+    this.stack.grow(addition.getCount());
   }
 
   private static boolean areItemStacksMergeable(ItemStack a, ItemStack b) {
-    return !a.isEmpty() && !b.isEmpty() && ItemStack.areItemsAndComponentsEqual(a, b);
+    return !a.isEmpty() && !b.isEmpty() && ItemStack.isSameItemSameComponents(a, b);
   }
 }

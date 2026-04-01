@@ -1,9 +1,5 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
-
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.event.ExperiencePickup;
 import me.roundaround.pickupnotifications.event.ItemPickup;
@@ -12,11 +8,15 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class PickupNotificationsHud {
@@ -27,14 +27,12 @@ public class PickupNotificationsHud {
 
   public static void init() {
     ClientTickEvents.END_CLIENT_TICK.register(INSTANCE::tick);
-    HudElementRegistry.addLast(
-        Identifier.of(Constants.MOD_ID, Constants.MOD_ID),
-        INSTANCE::render);
+    HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(Constants.MOD_ID, Constants.MOD_ID), INSTANCE::render);
     ExperiencePickup.EVENT.register(INSTANCE::handleExperiencePickedUp);
     ItemPickup.EVENT.register(INSTANCE::handleItemPickedUp);
   }
 
-  private void tick(final MinecraftClient client) {
+  private void tick(final Minecraft client) {
     if (!PickupNotificationsConfig.getInstance().modEnabled.getValue()) {
       return;
     }
@@ -63,7 +61,7 @@ public class PickupNotificationsHud {
     }
   }
 
-  private void render(DrawContext context, RenderTickCounter tickCounter) {
+  private void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
     if (!PickupNotificationsConfig.getInstance().modEnabled.getValue()) {
       return;
     }
@@ -72,7 +70,7 @@ public class PickupNotificationsHud {
       return;
     }
 
-    if (!MinecraftClient.isHudEnabled()) {
+    if (!Minecraft.renderNames()) {
       return;
     }
 
@@ -91,8 +89,9 @@ public class PickupNotificationsHud {
   }
 
   private void handleItemPickedUp(ItemStack stack) {
-    ItemStack pickedUp = PickupNotificationsConfig.getInstance().showUniqueInfo.getValue() ? stack.copy()
-        : new ItemStack(stack.getItem(), stack.getCount());
+    ItemStack pickedUp = PickupNotificationsConfig.getInstance().showUniqueInfo.getValue() ?
+        stack.copy() :
+        new ItemStack(stack.getItem(), stack.getCount());
     this.handlePickup(pickedUp, ItemPickupNotification::new);
   }
 
@@ -128,7 +127,7 @@ public class PickupNotificationsHud {
   }
 
   private boolean hasRoomForNewNotification() {
-    return this.currentlyShownNotifications.size() < PickupNotificationsConfig.getInstance().maxNotifications
-        .getValue();
+    return this.currentlyShownNotifications.size() <
+           PickupNotificationsConfig.getInstance().maxNotifications.getValue();
   }
 }

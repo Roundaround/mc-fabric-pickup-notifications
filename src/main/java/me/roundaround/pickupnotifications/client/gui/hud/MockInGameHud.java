@@ -1,14 +1,14 @@
 package me.roundaround.pickupnotifications.client.gui.hud;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class MockInGameHud {
   private static final int HOTBAR_WIDTH = 182;
@@ -17,7 +17,7 @@ public class MockInGameHud {
   private static final int SELECTION_WIDTH = 24;
   private static final int SELECTION_HEIGHT = 23;
   private static final int MOCK_SELECTED_SLOT = 2;
-  private static final Inventory MOCK_INVENTORY = new SimpleInventory(
+  private static final Container MOCK_INVENTORY = new SimpleContainer(
       new ItemStack(Items.DIAMOND_SWORD),
       new ItemStack(Items.BOW),
       new ItemStack(Items.NETHERITE_AXE),
@@ -26,7 +26,8 @@ public class MockInGameHud {
       new ItemStack(Items.COOKED_PORKCHOP, 15),
       new ItemStack(Items.GOLDEN_APPLE, 3),
       ItemStack.EMPTY,
-      new ItemStack(Items.TORCH, 57));
+      new ItemStack(Items.TORCH, 57)
+  );
   private static final int XP_BAR_HEIGHT = 5;
   private static final int MOCK_XP_LEVEL = 14;
   private static final float MOCK_XP_PROGRESS = 0.7f;
@@ -35,78 +36,75 @@ public class MockInGameHud {
   private static final int MOCK_ARMOR = 7;
   private static final int MOCK_FOOD = 19;
 
-  private static final Identifier HOTBAR_TEXTURE = Identifier.ofVanilla("hud/hotbar");
-  private static final Identifier HOTBAR_SELECTION_TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
-  private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.ofVanilla(
+  private static final Identifier HOTBAR_TEXTURE = Identifier.withDefaultNamespace("hud/hotbar");
+  private static final Identifier HOTBAR_SELECTION_TEXTURE = Identifier.withDefaultNamespace("hud/hotbar_selection");
+  private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.withDefaultNamespace(
       "hud/experience_bar_background");
-  private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = Identifier.ofVanilla("hud/experience_bar_progress");
-  private static final Identifier ARMOR_EMPTY_TEXTURE = Identifier.ofVanilla("hud/armor_empty");
-  private static final Identifier ARMOR_HALF_TEXTURE = Identifier.ofVanilla("hud/armor_half");
-  private static final Identifier ARMOR_FULL_TEXTURE = Identifier.ofVanilla("hud/armor_full");
-  private static final Identifier FOOD_EMPTY_TEXTURE = Identifier.ofVanilla("hud/food_empty");
-  private static final Identifier FOOD_HALF_TEXTURE = Identifier.ofVanilla("hud/food_half");
-  private static final Identifier FOOD_FULL_TEXTURE = Identifier.ofVanilla("hud/food_full");
-  private static final Identifier HEART_FULL_TEXTURE = Identifier.ofVanilla("hud/heart/hardcore_full");
-  private static final Identifier HEART_HALF_TEXTURE = Identifier.ofVanilla("hud/heart/hardcore_half");
-  private static final Identifier HEART_EMPTY_TEXTURE = Identifier.ofVanilla("hud/heart/container_hardcore");
+  private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = Identifier.withDefaultNamespace(
+      "hud/experience_bar_progress");
+  private static final Identifier ARMOR_EMPTY_TEXTURE = Identifier.withDefaultNamespace("hud/armor_empty");
+  private static final Identifier ARMOR_HALF_TEXTURE = Identifier.withDefaultNamespace("hud/armor_half");
+  private static final Identifier ARMOR_FULL_TEXTURE = Identifier.withDefaultNamespace("hud/armor_full");
+  private static final Identifier FOOD_EMPTY_TEXTURE = Identifier.withDefaultNamespace("hud/food_empty");
+  private static final Identifier FOOD_HALF_TEXTURE = Identifier.withDefaultNamespace("hud/food_half");
+  private static final Identifier FOOD_FULL_TEXTURE = Identifier.withDefaultNamespace("hud/food_full");
+  private static final Identifier HEART_FULL_TEXTURE = Identifier.withDefaultNamespace("hud/heart/hardcore_full");
+  private static final Identifier HEART_HALF_TEXTURE = Identifier.withDefaultNamespace("hud/heart/hardcore_half");
+  private static final Identifier HEART_EMPTY_TEXTURE = Identifier.withDefaultNamespace("hud/heart/container_hardcore");
 
-  private final TextRenderer textRenderer;
+  private final Font textRenderer;
 
-  public MockInGameHud(TextRenderer textRenderer) {
+  public MockInGameHud(Font textRenderer) {
     this.textRenderer = textRenderer;
   }
 
-  public void renderMockHud(DrawContext context) {
+  public void renderMockHud(GuiGraphicsExtractor context) {
     renderHotbar(context, this.textRenderer);
     renderExperienceBar(context);
     renderExperienceLevel(context, this.textRenderer);
     renderStatusBars(context);
   }
 
-  private static void renderHotbar(DrawContext context, TextRenderer textRenderer) {
+  private static void renderHotbar(GuiGraphicsExtractor context, Font textRenderer) {
     int x = getHotbarLeft(context);
     int y = getHotbarTop(context);
 
-    context.drawGuiTexture(
-        RenderPipelines.GUI_TEXTURED,
-        HOTBAR_TEXTURE,
-        x,
-        y,
-        HOTBAR_WIDTH,
-        HOTBAR_HEIGHT);
-    context.drawGuiTexture(
+    context.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_TEXTURE, x, y, HOTBAR_WIDTH, HOTBAR_HEIGHT);
+    context.blitSprite(
         RenderPipelines.GUI_TEXTURED,
         HOTBAR_SELECTION_TEXTURE,
         x - 1 + MOCK_SELECTED_SLOT * SLOT_SIZE,
         y - 1,
         SELECTION_WIDTH,
-        SELECTION_HEIGHT);
+        SELECTION_HEIGHT
+    );
 
     for (int slot = 0; slot < 9; slot++) {
-      ItemStack stack = MOCK_INVENTORY.getStack(slot);
+      ItemStack stack = MOCK_INVENTORY.getItem(slot);
       if (!stack.isEmpty()) {
         int itemX = x + 1 + slot * SLOT_SIZE + 2;
-        int itemY = context.getScaledWindowHeight() - SLOT_SIZE + 1;
+        int itemY = context.guiHeight() - SLOT_SIZE + 1;
 
-        context.drawItemWithoutEntity(stack, itemX, itemY, slot + 1);
-        context.drawStackOverlay(textRenderer, stack, itemX, itemY);
+        context.fakeItem(stack, itemX, itemY, slot + 1);
+        context.itemDecorations(textRenderer, stack, itemX, itemY);
       }
     }
   }
 
-  private static void renderExperienceBar(DrawContext context) {
+  private static void renderExperienceBar(GuiGraphicsExtractor context) {
     int x = getHotbarLeft(context);
     int y = getExperienceBarTop(context);
     int progress = (int) (MOCK_XP_PROGRESS * (HOTBAR_WIDTH + 1f));
 
-    context.drawGuiTexture(
+    context.blitSprite(
         RenderPipelines.GUI_TEXTURED,
         EXPERIENCE_BAR_BACKGROUND_TEXTURE,
         x,
         y,
         HOTBAR_WIDTH,
-        XP_BAR_HEIGHT);
-    context.drawGuiTexture(
+        XP_BAR_HEIGHT
+    );
+    context.blitSprite(
         RenderPipelines.GUI_TEXTURED,
         EXPERIENCE_BAR_PROGRESS_TEXTURE,
         HOTBAR_WIDTH,
@@ -116,21 +114,22 @@ public class MockInGameHud {
         x,
         y,
         progress,
-        XP_BAR_HEIGHT);
+        XP_BAR_HEIGHT
+    );
   }
 
-  private static void renderExperienceLevel(DrawContext context, TextRenderer textRenderer) {
+  private static void renderExperienceLevel(GuiGraphicsExtractor context, Font textRenderer) {
     String level = Integer.toString(MOCK_XP_LEVEL);
-    int x = getCenteredLeft(context, textRenderer.getWidth(level));
-    int y = getExperienceBarTop(context) - textRenderer.fontHeight + MathHelper.ceil(XP_BAR_HEIGHT / 2f);
-    context.drawText(textRenderer, level, x + 1, y, 0, false);
-    context.drawText(textRenderer, level, x - 1, y, 0, false);
-    context.drawText(textRenderer, level, x, y + 1, 0, false);
-    context.drawText(textRenderer, level, x, y - 1, 0, false);
-    context.drawText(textRenderer, level, x, y, 8453920, false);
+    int x = getCenteredLeft(context, textRenderer.width(level));
+    int y = getExperienceBarTop(context) - textRenderer.lineHeight + Mth.ceil(XP_BAR_HEIGHT / 2f);
+    context.text(textRenderer, level, x + 1, y, 0, false);
+    context.text(textRenderer, level, x - 1, y, 0, false);
+    context.text(textRenderer, level, x, y + 1, 0, false);
+    context.text(textRenderer, level, x, y - 1, 0, false);
+    context.text(textRenderer, level, x, y, 8453920, false);
   }
 
-  private static void renderStatusBars(DrawContext context) {
+  private static void renderStatusBars(GuiGraphicsExtractor context) {
     renderStatusBar(
         context,
         getHotbarLeft(context),
@@ -139,7 +138,8 @@ public class MockInGameHud {
         HEART_HALF_TEXTURE,
         HEART_FULL_TEXTURE,
         MOCK_HEALTH,
-        false);
+        false
+    );
     renderStatusBar(
         context,
         getHotbarRight(context),
@@ -148,7 +148,8 @@ public class MockInGameHud {
         FOOD_HALF_TEXTURE,
         FOOD_FULL_TEXTURE,
         MOCK_FOOD,
-        true);
+        true
+    );
     renderStatusBar(
         context,
         getHotbarLeft(context),
@@ -157,18 +158,20 @@ public class MockInGameHud {
         ARMOR_HALF_TEXTURE,
         ARMOR_FULL_TEXTURE,
         MOCK_ARMOR,
-        false);
+        false
+    );
   }
 
   private static void renderStatusBar(
-      DrawContext context,
+      GuiGraphicsExtractor context,
       int x,
       int y,
       Identifier empty,
       Identifier half,
       Identifier full,
       int scaledValue,
-      boolean inverted) {
+      boolean inverted
+  ) {
     for (int index = 0; index < 10; index++) {
       int offset = inverted ? -(index + 1) * (ICON_SIZE - 1) : index * (ICON_SIZE - 1);
 
@@ -179,48 +182,36 @@ public class MockInGameHud {
         icon = half;
       }
 
-      context.drawGuiTexture(
-          RenderPipelines.GUI_TEXTURED,
-          empty,
-          x + offset,
-          y,
-          ICON_SIZE,
-          ICON_SIZE);
-      context.drawGuiTexture(
-          RenderPipelines.GUI_TEXTURED,
-          icon,
-          x + offset,
-          y,
-          ICON_SIZE,
-          ICON_SIZE);
+      context.blitSprite(RenderPipelines.GUI_TEXTURED, empty, x + offset, y, ICON_SIZE, ICON_SIZE);
+      context.blitSprite(RenderPipelines.GUI_TEXTURED, icon, x + offset, y, ICON_SIZE, ICON_SIZE);
     }
   }
 
-  private static int getCenteredLeft(DrawContext context, int width) {
-    return (context.getScaledWindowWidth() - width) / 2;
+  private static int getCenteredLeft(GuiGraphicsExtractor context, int width) {
+    return (context.guiWidth() - width) / 2;
   }
 
-  private static int getHotbarLeft(DrawContext context) {
+  private static int getHotbarLeft(GuiGraphicsExtractor context) {
     return getCenteredLeft(context, HOTBAR_WIDTH);
   }
 
-  private static int getHotbarRight(DrawContext context) {
+  private static int getHotbarRight(GuiGraphicsExtractor context) {
     return getHotbarLeft(context) + HOTBAR_WIDTH;
   }
 
-  private static int getHotbarTop(DrawContext context) {
-    return context.getScaledWindowHeight() - HOTBAR_HEIGHT;
+  private static int getHotbarTop(GuiGraphicsExtractor context) {
+    return context.guiHeight() - HOTBAR_HEIGHT;
   }
 
-  private static int getExperienceBarTop(DrawContext context) {
+  private static int getExperienceBarTop(GuiGraphicsExtractor context) {
     return getHotbarTop(context) - 2 - XP_BAR_HEIGHT;
   }
 
-  private static int getLowerStatusRowTop(DrawContext context) {
+  private static int getLowerStatusRowTop(GuiGraphicsExtractor context) {
     return getExperienceBarTop(context) - 1 - ICON_SIZE;
   }
 
-  private static int getUpperStatusRowTop(DrawContext context) {
+  private static int getUpperStatusRowTop(GuiGraphicsExtractor context) {
     return getLowerStatusRowTop(context) - 1 - ICON_SIZE;
   }
 }
