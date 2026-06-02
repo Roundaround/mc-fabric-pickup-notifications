@@ -1,13 +1,26 @@
-import me.roundaround.gradle.extension.library.LibModule
-
 plugins {
-  id("roundalib-gradle") version "2.0.0"
+  id("me.roundaround.allay")
 }
 
-roundalib {
-  library {
-    local = true
-    version = "4.0.1"
-    modules.addAll(LibModule.CORE, LibModule.GUI, LibModule.CONFIG, LibModule.CONFIG_GUI, LibModule.OBSERVABLES)
+allay {
+  displayName.set("Pickup Notifications")
+  description.set("Show notifications on item pickup.")
+  authors.set(listOf("Roundaround"))
+  license.set("MIT")
+  homepage.set("https://modrinth.com/mod/pickup-notifications")
+  repository.set("https://github.com/Roundaround/mc-fabric-pickup-notifications")
+  issues.set("https://github.com/Roundaround/mc-fabric-pickup-notifications/issues")
+
+  modrinth {
+    projectId.set("pickup-notifications")
+  }
+
+  curseforge {
+    projectId.set(1292780)
+  }
+
+  release {
+    versionType.set("release")
+    sourcesJar.set(true)
   }
 }
