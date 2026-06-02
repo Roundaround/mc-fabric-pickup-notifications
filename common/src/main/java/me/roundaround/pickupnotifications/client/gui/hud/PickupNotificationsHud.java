@@ -3,10 +3,12 @@ package me.roundaround.pickupnotifications.client.gui.hud;
 import me.roundaround.pickupnotifications.config.PickupNotificationsConfig;
 import me.roundaround.pickupnotifications.event.ExperiencePickup;
 import me.roundaround.pickupnotifications.event.ItemPickup;
+import me.roundaround.pickupnotifications.generated.Constants;
 import me.roundaround.trove.event.ClientLifecycle;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -14,6 +16,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 public class PickupNotificationsHud {
+  /** Id of this mod's own HUD layer, registered above the vanilla HUD by each loader's entrypoint. */
+  public static final Identifier LAYER_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "notifications");
+
   private static final PickupNotificationsHud INSTANCE = new PickupNotificationsHud();
 
   private final CopyOnWriteArrayList<PickupNotification<?>> currentlyShownNotifications = new CopyOnWriteArrayList<>();
