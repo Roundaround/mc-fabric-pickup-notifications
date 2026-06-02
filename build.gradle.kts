@@ -10,6 +10,7 @@ allay {
   homepage.set("https://modrinth.com/mod/pickup-notifications")
   repository.set("https://github.com/Roundaround/mc-fabric-pickup-notifications")
   issues.set("https://github.com/Roundaround/mc-fabric-pickup-notifications/issues")
+  logoFile.set("assets/pickupnotifications/banner.png")
 
   modrinth {
     projectId.set("pickup-notifications")
