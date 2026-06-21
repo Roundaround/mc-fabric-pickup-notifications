@@ -12,6 +12,12 @@ allay {
   issues.set("https://github.com/Roundaround/mc-fabric-pickup-notifications/issues")
   logoFile.set("assets/pickupnotifications/banner.png")
 
+  gametest {
+    // Acknowledge the Minecraft EULA for the throwaway worlds the headless
+    // server game test spins up.
+    eula.set(true)
+  }
+
   modrinth {
     projectId.set("pickup-notifications")
   }
@@ -22,7 +28,7 @@ allay {
 
   release {
     versionType.set("release")
-    minecraftVersions("26.1".."26.1.2")
+    minecraftVersions("26.2")
     changelogDir.set(file("changelogs"))
   }
 }

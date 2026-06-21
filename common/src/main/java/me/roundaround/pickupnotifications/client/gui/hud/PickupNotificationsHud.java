@@ -72,7 +72,7 @@ public class PickupNotificationsHud {
       return;
     }
 
-    if (!Minecraft.renderNames()) {
+    if (Minecraft.getInstance().gui.hud.isHidden()) {
       return;
     }
 
